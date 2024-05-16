@@ -1,4 +1,6 @@
-import 'package:struct_annotation/struct_annotation.dart';
+// TODO(felangel): replace with `package:struct_annotation/struct_annotation.dart`
+// when https://github.com/dart-lang/sdk/commit/73bdc86dd50e11cedb3bf976c597a02ad209bdb4 lands on master
+import 'package:struct_annotation/src/struct_annotation.dart';
 
 @Struct()
 class Person {
@@ -7,7 +9,7 @@ class Person {
 }
 
 void main() {
-  final jane = Person(name: 'Jane', age: 42);
+  const jane = Person(name: 'Jane', age: 42);
   final john = jane.copyWith(name: 'John');
 
   print(jane); // Person(name: Jane, age: 42)
