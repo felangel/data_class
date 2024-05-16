@@ -11,22 +11,26 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
   FutureOr<void> buildDeclarationsForClass(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
-  ) async {
-    await _declareEquals(clazz, builder);
-    await _declareHashCode(clazz, builder);
-    await _declareToString(clazz, builder);
-    await _declareCopyWith(clazz, builder);
+  ) {
+    return Future.wait([
+      _declareEquals(clazz, builder),
+      _declareHashCode(clazz, builder),
+      _declareToString(clazz, builder),
+      _declareCopyWith(clazz, builder),
+    ]);
   }
 
   @override
   FutureOr<void> buildDefinitionForClass(
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
-  ) async {
-    await _buildEquals(clazz, builder);
-    await _buildHashCode(clazz, builder);
-    await _buildToString(clazz, builder);
-    await _buildCopyWith(clazz, builder);
+  ) {
+    return Future.wait([
+      _buildEquals(clazz, builder),
+      _buildHashCode(clazz, builder),
+      _buildToString(clazz, builder),
+      _buildCopyWith(clazz, builder),
+    ]);
   }
 
   Future<void> _declareEquals(
@@ -99,7 +103,8 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
       Uri.parse('package:struct_annotation/struct_annotation.dart'),
       'deepCollectionEquality',
     );
-    final fields = (await builder.fieldsOf(clazz)).map(
+    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final fields = fieldDeclarations.map(
       (f) => f.identifier.name,
     );
     final identical = await builder.getIdentifier(
@@ -137,7 +142,8 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
       Uri.parse('dart:core'),
       'Object',
     );
-    final fields = (await builder.fieldsOf(clazz)).map(
+    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final fields = fieldDeclarations.map(
       (f) => f.identifier.name,
     );
     return hashCodeMethod.augment(
