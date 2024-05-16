@@ -13,6 +13,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     MemberDeclarationBuilder builder,
   ) {
     return Future.wait([
+      _declareDefaultConstructor(clazz, builder),
       _declareEquals(clazz, builder),
       _declareHashCode(clazz, builder),
       _declareToString(clazz, builder),
@@ -227,12 +228,42 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           clazzName,
           '(',
           for (final field in fields)
-          ...[field.identifier.name,': ', field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
+            ...[field.identifier.name,': ', field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
           ');'
         ],
       ),
     );
   }
+
+  Future<void> _declareDefaultConstructor(
+    ClassDeclaration clazz,
+    MemberDeclarationBuilder builder,
+  ) async {
+    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final fields = await Future.wait(
+      fieldDeclarations.map(
+        (f) async => (
+          identifier: f.identifier,
+          type: _checkNamedType(f.type, builder),
+        ),
+      ),
+    );
+
+    final missingType = fields.firstWhereOrNull((f) => f.type == null);
+    if (missingType != null) return null;
+
+    return builder.declareInType(
+      DeclarationCode.fromParts(
+        [
+          'const ${clazz.identifier.name}({',
+          for (final field in fields)
+            ...['required', ' ', 'this.', field.identifier.name, ','],
+          '});',
+        ],
+      ),
+    );
+  }
+
 }
 
 mixin _Shared {
