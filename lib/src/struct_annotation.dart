@@ -228,7 +228,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           clazzName,
           '(',
           for (final field in fields)
-          ...[field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
+            ...[field.identifier.name,': ', field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
           ');'
         ],
       ),
@@ -254,12 +254,10 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
     return builder.declareInType(
       DeclarationCode.fromParts([
-        '${clazz.identifier.name}(',
+        '${clazz.identifier.name}({',
         for (final field in fields)
-          ...[field.type!.identifier.name, ' ', field.identifier.name, ',']
-        ,') : ',
-        for (var i = 0; i < fields.length; i++)
-          ...['this', '.', fields[i].identifier.name, ' = ', fields[i].identifier.name, (i == fields.length -1) ? ';' : ',']
+          ...['required', ' ', 'this.', field.identifier.name, ','],
+        '});',
       ]),
     );
   }
