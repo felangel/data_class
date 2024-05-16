@@ -96,7 +96,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     if (equality == null) return;
     final equalsMethod = await builder.buildMethod(equality.identifier);
     final deepCollectionEquality = await builder.resolveIdentifier(
-      Uri.parse('package:struct/struct.dart'),
+      Uri.parse('package:struct_annotation/struct_annotation.dart'),
       'deepCollectionEquality',
     );
     final fields = (await builder.fieldsOf(clazz)).map(
