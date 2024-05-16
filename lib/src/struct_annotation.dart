@@ -106,7 +106,6 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
     if (missingType != null) return null;
-
     return builder.declareInType(
       DeclarationCode.fromParts(
         [
@@ -154,7 +153,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           ';',
           '}',          
         ],
-      ),
+      ),      
     );
   }
 
@@ -240,13 +239,14 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
         ),
       ),
     );
-
+    final docComments = CommentCode.fromString('/// Create a copy of [$clazzName] and replace zero or more fields.');
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
     if (missingType != null) {
       return copyWithMethod.augment(
       FunctionBodyCode.fromString(
         '=> throw "Unable to copyWith to due missing type ${missingType.rawType.code.debugString}',
       ),
+      docComments: docComments,
     );
     }
         
@@ -261,6 +261,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           ');'
         ],
       ),
+      docComments: docComments,
     );
   }
 }
