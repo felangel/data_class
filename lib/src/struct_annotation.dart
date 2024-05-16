@@ -264,7 +264,6 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
 }
 
-
 mixin _Shared {
   NamedTypeAnnotation? _checkNamedType(TypeAnnotation type, Builder builder) {
     if (type is NamedTypeAnnotation) return type;
