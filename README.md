@@ -1,6 +1,8 @@
 # struct_annotation
 
-Experimental support for data classes in Dart using `package:macros`.
+**🚧 Experimental 🚧**
+
+Experimental support for data classes in Dart using [macros](https://dart.dev/language/macros).
 
 ```dart
 import 'package:struct_annotation/struct_annotation.dart';
@@ -24,3 +26,5 @@ void main() {
   print(john == john.copyWith(age: 21)); // false
 }
 ```
+
+_Requires Dart SDK >= 3.5.0-152.0.dev_
