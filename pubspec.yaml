@@ -1,0 +1,12 @@
+name: struct_annotation
+description: Experimental support for data classes in Dart using pkg:macros
+version: 0.0.0-dev
+repository: https://github.com/felangel/struct
+
+environment:
+  sdk: ^3.5.0-152.0.dev
+
+dependencies:
+  collection: ^1.15.0
+  equatable: ^2.0.0
+  macros: ^0.1.0-main.5
