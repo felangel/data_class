@@ -12,8 +12,6 @@ import 'package:struct_annotation/struct_annotation.dart';
 
 @Struct()
 class Person {
-  const Person({required this.name, required this.age});
-
   final String name;
   final int age;
 }
