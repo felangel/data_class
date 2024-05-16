@@ -13,6 +13,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     MemberDeclarationBuilder builder,
   ) {
     return Future.wait([
+      _declareDefaultConstructor(clazz, builder),
       _declareEquals(clazz, builder),
       _declareHashCode(clazz, builder),
       _declareToString(clazz, builder),
@@ -227,13 +228,44 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           clazzName,
           '(',
           for (final field in fields)
-          ...[field.identifier.name,': ', field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
+          ...[field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
           ');'
         ],
       ),
     );
   }
+
+  Future<void> _declareDefaultConstructor(
+      ClassDeclaration clazz,
+      MemberDeclarationBuilder builder,
+      ) async {
+    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final fields = await Future.wait(
+      fieldDeclarations.map(
+            (f) async => (
+        identifier: f.identifier,
+        type: _checkNamedType(f.type, builder),
+        ),
+      ),
+    );
+
+    final missingType = fields.firstWhereOrNull((f) => f.type == null);
+    if (missingType != null) return null;
+
+    return builder.declareInType(
+      DeclarationCode.fromParts([
+        '${clazz.identifier.name}(',
+        for (final field in fields)
+          ...[field.type!.identifier.name, ' ', field.identifier.name, ',']
+        ,') : ',
+        for (var i = 0; i < fields.length; i++)
+          ...['this', '.', fields[i].identifier.name, ' = ', fields[i].identifier.name, (i == fields.length -1) ? ';' : ',']
+      ]),
+    );
+  }
+
 }
+
 
 mixin _Shared {
   NamedTypeAnnotation? _checkNamedType(TypeAnnotation type, Builder builder) {
