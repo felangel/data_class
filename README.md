@@ -27,4 +27,32 @@ void main() {
 }
 ```
 
+## Try It
+
+1. Switch to the Flutter `master` channel
+   `flutter channel master`
+
+1. Add `package:struct_annotation` to your `pubspec.yaml`
+
+   ```yaml
+   dependencies:
+     struct_annotation: ^0.0.0-dev.1
+   ```
+
+1. Enable experimental macros in `analysis_options.yaml`
+
+   ```yaml
+   analyzer:
+     enable-experiment:
+       - macros
+   ```
+
+1. Use the `@Struct` annotation (see above example).
+
+1. Run it
+
+   ```sh
+   dart --enable-experiment=macros run main.dart
+   ```
+
 _Requires Dart SDK >= 3.5.0-152.0.dev_
