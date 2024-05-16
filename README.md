@@ -17,7 +17,7 @@ class Person {
 }
 
 void main() {
-  final jane = Person(name: 'Jane', age: 42);
+  const jane = Person(name: 'Jane', age: 42);
   final john = jane.copyWith(name: 'John');
 
   print(jane); // Person(name: Jane, age: 42)
