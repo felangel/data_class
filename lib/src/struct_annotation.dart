@@ -95,14 +95,14 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     );
     if (equality == null) return;
     final equalsMethod = await builder.buildMethod(equality.identifier);
-    final deepCollectionEquality = await builder.resolveIdentifier(
+    final deepCollectionEquality = await builder.getIdentifier(
       Uri.parse('package:struct_annotation/struct_annotation.dart'),
       'deepCollectionEquality',
     );
     final fields = (await builder.fieldsOf(clazz)).map(
       (f) => f.identifier.name,
     );
-    final identical = await builder.resolveIdentifier(
+    final identical = await builder.getIdentifier(
       Uri.parse('dart:core'),
       'identical',
     );
@@ -133,7 +133,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     );
     if (hashCode == null) return;
     final hashCodeMethod = await builder.buildMethod(hashCode.identifier);
-    final object = await builder.resolveIdentifier(
+    final object = await builder.getIdentifier(
       Uri.parse('dart:core'),
       'Object',
     );
@@ -246,6 +246,13 @@ mixin _Shared {
           Severity.error));
     }
     return null;
+  }
+}
+
+extension on TypeDefinitionBuilder {
+  Future<Identifier> getIdentifier(Uri library, String name) {
+    // ignore: deprecated_member_use
+    return resolveIdentifier(library, name);
   }
 }
 
