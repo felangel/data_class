@@ -254,7 +254,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
     return builder.declareInType(
       DeclarationCode.fromParts([
-        '${clazz.identifier.name}({',
+        'const ${clazz.identifier.name}({',
         for (final field in fields)
           ...['required', ' ', 'this.', field.identifier.name, ','],
         '});',
