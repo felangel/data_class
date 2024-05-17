@@ -107,13 +107,21 @@ void main() {
       expect(nonNullInstance.copyWith(), equals(nonNullInstance));
       expect(nullInstance.copyWith(value: null), equals(nullInstance));
       expect(nonNullInstance.copyWith(value: null), equals(nonNullInstance));
-      final copy = nonNullInstance.copyWith(value: () => 'bye');
-      expect(copy, isNot(equals(nonNullInstance)));
-      expect(copy.value, equals('bye'));
+      expect(
+        nullInstance.copyWith(value: () => 'hello'),
+        isA<NullableStringFieldClass>().having(
+          (e) => e.value,
+          'value',
+          'hello',
+        ),
+      );
       expect(
         nonNullInstance.copyWith(value: () => null),
         isA<NullableStringFieldClass>().having((e) => e.value, 'value', isNull),
       );
+      final copy = nonNullInstance.copyWith(value: () => 'bye');
+      expect(copy, isNot(equals(nonNullInstance)));
+      expect(copy.value, equals('bye'));
     });
 
     test('hashCode', () {
