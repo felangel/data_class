@@ -24,23 +24,22 @@ import 'package:struct_annotation/struct_annotation.dart';
 @Struct()
 class Person {
   final String name;
-  final int age;
 }
 
 void main() {
   // 🪨 Create a const instance with required, name parameters.
-  const jane = Person(name: 'Jane', age: 42);
+  const dash = Person(name: 'Dash');
 
   // 🖨️ Create copies of your object.
-  final john = jane.copyWith(name: 'John');
+  final sparky = dash.copyWith(name: () => 'Sparky');
 
   // ✨ Human-readable string representation.
-  print(jane); // Person(name: Jane, age: 42)
-  print(john); // Person(name: John, age: 42)
+  print(dash); // Person(name: Dash)
+  print(sparky); // Person(name: Sparky)
 
   // ☯️ Value equality comparisons.
-  print(jane == jane.copyWith()); // true
-  print(john == john.copyWith(age: 21)); // false
+  print(dash == dash.copyWith()); // true
+  print(dash == sparky); // false
 }
 ```
 

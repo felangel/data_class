@@ -25,7 +25,10 @@ void main() {
     });
 
     test('hashCode', () {
-      expect(const EmptyClass().hashCode, equals(const EmptyClass().hashCode));
+      expect(
+        const EmptyClass().hashCode,
+        equals(const EmptyClass().hashCode),
+      );
     });
 
     test('operator==', () {
@@ -53,7 +56,7 @@ void main() {
 
     test('copyWith', () {
       expect(instance.copyWith(), equals(instance));
-      final copy = instance.copyWith(value: 'bye');
+      final copy = instance.copyWith(value: () => 'bye');
       expect(copy, isNot(equals(instance)));
       expect(copy.value, equals('bye'));
     });
@@ -102,9 +105,15 @@ void main() {
     test('copyWith', () {
       expect(nullInstance.copyWith(), equals(nullInstance));
       expect(nonNullInstance.copyWith(), equals(nonNullInstance));
-      final copy = nonNullInstance.copyWith(value: 'bye');
+      expect(nullInstance.copyWith(value: null), equals(nullInstance));
+      expect(nonNullInstance.copyWith(value: null), equals(nonNullInstance));
+      final copy = nonNullInstance.copyWith(value: () => 'bye');
       expect(copy, isNot(equals(nonNullInstance)));
       expect(copy.value, equals('bye'));
+      expect(
+        nonNullInstance.copyWith(value: () => null),
+        isA<NullableStringFieldClass>().having((e) => e.value, 'value', isNull),
+      );
     });
 
     test('hashCode', () {
@@ -112,8 +121,11 @@ void main() {
         nonNullInstance.hashCode,
         equals(Object.hashAll([nonNullInstance.value])),
       );
-      
-      expect(nullInstance.hashCode, equals(Object.hashAll([nullInstance.value])));
+
+      expect(
+        nullInstance.hashCode,
+        equals(Object.hashAll([nullInstance.value])),
+      );
     });
 
     test('operator==', () {

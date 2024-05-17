@@ -24,7 +24,7 @@ import 'package:macros/macros.dart';
 ///   print(dash); // Person(name: Dash)
 /// 
 ///   // Generated `copyWith`
-///   print(dash.copyWith(name: 'Sparky')); // Person(name: Sparky)
+///   print(dash.copyWith(name: () => 'Sparky')); // Person(name: Sparky)
 /// 
 ///   // Generated `hashCode` and `operator==` for value based equality.
 ///   print(dash == Person(name: 'Dash')); // true
@@ -153,7 +153,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
         [
           'external ${clazz.identifier.name} copyWith({',
           for (final field in fields)
-          ...[field.type!.identifier.name, '? ', field.identifier.name, ',']
+          ...[field.type!.identifier.name, if(field.type!.isNullable) '?', ' Function()? ', field.identifier.name, ',']
           ,'});',
         ],
       ),
@@ -330,7 +330,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
           clazzName,
           '(',
           for (final field in fields)
-            ...[field.identifier.name,': ', field.identifier.name, ' ?? ', 'this.',field.identifier.name, ','],
+            ...[field.identifier.name, ': ', field.identifier.name, '!= null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
           ');'
         ],
       ),
