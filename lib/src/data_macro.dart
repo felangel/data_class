@@ -1,9 +1,7 @@
 import 'dart:core';
 
-// This import is needed to ensure we can resolve deepCollectionEquality.
-// ignore: unused_import
-import 'package:data_class_macro/data_class_macro.dart';
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/data_class_macro.dart';
 import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
@@ -41,9 +39,9 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     MemberDeclarationBuilder builder,
   ) {
     return Future.wait([
-       const Constructable().buildDeclarationsForClass(clazz, builder),
-       const Equatable().buildDeclarationsForClass(clazz, builder),      
-      _declareToString(clazz, builder),
+      const Constructable().buildDeclarationsForClass(clazz, builder),
+      const Equatable().buildDeclarationsForClass(clazz, builder),
+      const Stringify().buildDeclarationsForClass(clazz, builder),
       _declareCopyWith(clazz, builder),
     ]);
   }
@@ -54,19 +52,10 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     TypeDefinitionBuilder builder,
   ) {
     return Future.wait([
-      const Equatable().buildDefinitionForClass(clazz, builder),      
-      _buildToString(clazz, builder),
+      const Equatable().buildDefinitionForClass(clazz, builder),
+      const Stringify().buildDefinitionForClass(clazz, builder),
       _buildCopyWith(clazz, builder),
     ]);
-  }
-
-  Future<void> _declareToString(
-    ClassDeclaration clazz,
-    MemberDeclarationBuilder builder,
-  ) async {
-    return builder.declareInType(
-      DeclarationCode.fromString('external String toString();'),
-    );
   }
 
   Future<void> _declareCopyWith(
@@ -101,36 +90,6 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
           for (final field in fields)
           ...[field.type!.identifier.name, if(field.type!.isNullable) '?', ' Function()? ', field.identifier.name, ',']
           ,'});',
-        ],
-      ),
-    );
-  }
-
-  Future<void> _buildToString(
-    ClassDeclaration clazz,
-    TypeDefinitionBuilder builder,
-  ) async {
-    final methods = await builder.methodsOf(clazz);
-    final toString = methods.firstWhereOrNull(
-      (m) => m.identifier.name == 'toString',
-    );
-    if (toString == null) return;
-    final toStringMethod = await builder.buildMethod(toString.identifier);
-    final clazzName = clazz.identifier.name;
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = fieldDeclarations.map(
-      (f) => '${f.identifier.name}: \${${f.identifier.name}.toString()}',
-    );
-        
-    return toStringMethod.augment(
-      FunctionBodyCode.fromParts(
-        [
-          '=> "',
-          clazzName,
-          '(',
-          fields.join(', '),
-          ')',
-          '";',
         ],
       ),
     );
