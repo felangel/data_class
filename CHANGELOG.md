@@ -1,3 +1,8 @@
+## 0.0.0-dev.5
+
+- deps: remove unnecessary dependency on `package:equatable`
+- docs: add topics to `pubspec.yaml`
+
 ## 0.0.0-dev.4
 
 - feat: `copyWith` support for setting nullable fields to `null`
