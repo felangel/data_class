@@ -1,6 +1,3 @@
-// TODO(felangel): remove once https://github.com/dart-lang/sdk/commit/73bdc86dd50e11cedb3bf976c597a02ad209bdb4 lands on master
-// ignore: unnecessary_import
-import 'package:data_class_macro/src/data_class_macro.dart';
 import 'package:data_class_macro/data_class_macro.dart';
 
 @Data()
