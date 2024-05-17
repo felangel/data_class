@@ -1,3 +1,8 @@
+## 0.0.0-dev.4
+
+- feat: `copyWith` support for setting nullable fields to `null`
+- docs: improved example and `README.md`
+
 ## 0.0.0-dev.3
 
 - feat: support for empty classes
