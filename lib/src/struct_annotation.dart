@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:core';
 
 // This import is needed to ensure we can resolve deepCollectionEquality.
@@ -35,7 +34,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
   const Struct();
 
   @override
-  FutureOr<void> buildDeclarationsForClass(
+  Future<void> buildDeclarationsForClass(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) {
@@ -49,7 +48,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
   }
 
   @override
-  FutureOr<void> buildDefinitionForClass(
+  Future<void> buildDefinitionForClass(
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
   ) {
