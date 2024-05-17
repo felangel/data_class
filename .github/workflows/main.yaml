@@ -1,0 +1,33 @@
+name: build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: ⚙️ Build
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: dev
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🔍 Analyze
+        run: dart --enable-experiment=macros analyze --fatal-warnings lib
+
+      - name: 🧪 Test
+        run: dart --enable-experiment=macros test
