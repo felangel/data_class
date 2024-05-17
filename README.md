@@ -1,5 +1,6 @@
 # struct_annotation
 
+[![build](https://github.com/felangel/struct/actions/workflows/main.yaml/badge.svg)](https://github.com/felangel/struct/actions/workflows/main.yaml)
 [![pub package](https://img.shields.io/pub/v/struct_annotation.svg)](https://pub.dev/packages/struct_annotation)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
