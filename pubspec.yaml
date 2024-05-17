@@ -1,8 +1,8 @@
-name: struct_annotation
+name: data_class_macro
 description: Experimental support for data classes in Dart using pkg:macros
-version: 0.0.0-dev.5
-repository: https://github.com/felangel/struct
-topics: [macros, data-class, 'struct']
+version: 0.0.0-dev.6
+repository: https://github.com/felangel/data_class
+topics: [macros, data-class]
 
 environment:
   sdk: ^3.5.0-152.0.dev

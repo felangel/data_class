@@ -2,15 +2,15 @@ import 'dart:core';
 
 // This import is needed to ensure we can resolve deepCollectionEquality.
 // ignore: unused_import
-import 'package:struct_annotation/struct_annotation.dart';
+import 'package:data_class_macro/data_class_macro.dart';
 import 'package:collection/collection.dart';
 import 'package:macros/macros.dart';
 
-/// {@template struct}
+/// {@template data}
 /// An experimental macro which transforms a plain Dart class into a data class.
 /// 
 /// ```dart
-/// @Struct()
+/// @Data()
 /// class Person {
 ///   final String name;
 /// }
@@ -30,8 +30,9 @@ import 'package:macros/macros.dart';
 /// }
 /// ```
 /// {@endtemplate}
-macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefinitionMacro {
-  const Struct();
+macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinitionMacro {
+  /// {@macro data}
+  const Data();
 
   @override
   Future<void> buildDeclarationsForClass(
@@ -170,7 +171,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     if (equality == null) return;
     final equalsMethod = await builder.buildMethod(equality.identifier);
     final deepCollectionEquality = await builder.getIdentifier(
-      Uri.parse('package:struct_annotation/struct_annotation.dart'),
+      Uri.parse('package:data_class_macro/data_class_macro.dart'),
       'deepCollectionEquality',
     );
     final fieldDeclarations = await builder.fieldsOf(clazz);
@@ -344,13 +345,13 @@ mixin _Shared {
     if (type is OmittedTypeAnnotation) {
       builder.report(Diagnostic(
           DiagnosticMessage(
-              'Only fields with explicit types are allowed on structs, please add a type.',
+              'Only fields with explicit types are allowed on data classes, please add a type.',
               target: type.asDiagnosticTarget),
           Severity.error));
     } else {
       builder.report(Diagnostic(
           DiagnosticMessage(
-              'Only fields with named types are allowed on structs.',
+              'Only fields with named types are allowed on data classes.',
               target: type.asDiagnosticTarget),
           Severity.error));
     }

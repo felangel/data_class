@@ -1,15 +1,15 @@
-import 'package:struct_annotation/src/struct_annotation.dart';
+import 'package:data_class_macro/src/data_class_macro.dart';
 import 'package:test/test.dart';
 
-@Struct()
+@Data()
 class EmptyClass {}
 
-@Struct()
+@Data()
 class StringFieldClass {
   final String value;
 }
 
-@Struct()
+@Data()
 class NullableStringFieldClass {
   final String? value;
 }

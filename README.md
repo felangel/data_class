@@ -1,7 +1,7 @@
-# struct_annotation
+# data_class
 
-[![build](https://github.com/felangel/struct/actions/workflows/main.yaml/badge.svg)](https://github.com/felangel/struct/actions/workflows/main.yaml)
-[![pub package](https://img.shields.io/pub/v/struct_annotation.svg)](https://pub.dev/packages/struct_annotation)
+[![build](https://github.com/felangel/data_class/actions/workflows/main.yaml/badge.svg)](https://github.com/felangel/data_class/actions/workflows/main.yaml)
+[![pub package](https://img.shields.io/pub/v/data_class_macro.svg)](https://pub.dev/packages/data_class_macro)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
 **🚧 Experimental** support for data classes in Dart using [macros](https://dart.dev/language/macros).
@@ -19,9 +19,9 @@
 ## 🧑‍💻 Example
 
 ```dart
-import 'package:struct_annotation/struct_annotation.dart';
+import 'package:data_class_macro/data_class_macro.dart';
 
-@Struct()
+@Data()
 class Person {
   final String name;
 }
@@ -48,11 +48,11 @@ void main() {
 1. Switch to the Flutter `master` channel
    `flutter channel master`
 
-1. Add `package:struct_annotation` to your `pubspec.yaml`
+1. Add `package:data_class_macro` to your `pubspec.yaml`
 
    ```yaml
    dependencies:
-     struct_annotation: ^0.0.0-dev.1
+     data_class_macro: ^0.0.0-dev.1
    ```
 
 1. Enable experimental macros in `analysis_options.yaml`
@@ -63,7 +63,7 @@ void main() {
        - macros
    ```
 
-1. Use the `@Struct` annotation (see above example).
+1. Use the `@Data` annotation (see above example).
 
 1. Run it
 

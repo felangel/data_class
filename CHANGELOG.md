@@ -1,3 +1,7 @@
+## 0.0.0-dev.6
+
+- chore: rename to `Data()` to avoid confusion
+
 ## 0.0.0-dev.5
 
 - deps: remove unnecessary dependency on `package:equatable`

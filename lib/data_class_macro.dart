@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
 
-export 'src/struct_annotation.dart' show Struct;
+export 'src/data_class_macro.dart' show Data;
 
 const deepCollectionEquality = DeepCollectionEquality();
