@@ -9,7 +9,6 @@ environment:
 
 dependencies:
   collection: ^1.0.0
-  equatable: ^2.0.0
   macros: ^0.1.0-main.5
 
 dev_dependencies:
