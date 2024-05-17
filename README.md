@@ -7,6 +7,18 @@
 
 Experimental support for data classes in Dart using [macros](https://dart.dev/language/macros).
 
+## ✨ Features
+
+🪨 `const` constructors with required, named parameters
+
+🖨️ `copyWith` with optional, nullable, named parameters
+
+✨ `toString` for an improved string representation
+
+☯️ `operator==` and `hashCode` for value equality
+
+## 🧑‍💻 Example
+
 ```dart
 import 'package:struct_annotation/struct_annotation.dart';
 
@@ -17,18 +29,23 @@ class Person {
 }
 
 void main() {
+  // 🪨 Create a const instance with required, name parameters.
   const jane = Person(name: 'Jane', age: 42);
+
+  // 🖨️ Create copies of your object.
   final john = jane.copyWith(name: 'John');
 
+  // ✨ Human-readable string representation.
   print(jane); // Person(name: Jane, age: 42)
   print(john); // Person(name: John, age: 42)
 
+  // ☯️ Value equality comparisons.
   print(jane == jane.copyWith()); // true
   print(john == john.copyWith(age: 21)); // false
 }
 ```
 
-## Try It
+## 🚀 Quick Start
 
 1. Switch to the Flutter `master` channel
    `flutter channel master`
@@ -56,4 +73,4 @@ void main() {
    dart --enable-experiment=macros run main.dart
    ```
 
-_Requires Dart SDK >= 3.5.0-152.0.dev_
+_\*Requires Dart SDK >= 3.5.0-152.0.dev_

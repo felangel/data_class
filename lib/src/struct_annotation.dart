@@ -1,9 +1,36 @@
 import 'dart:async';
 import 'dart:core';
 
+// This import is needed to ensure we can resolve deepCollectionEquality.
+// ignore: unused_import
+import 'package:struct_annotation/struct_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:macros/macros.dart';
 
+/// {@template struct}
+/// An experimental macro which transforms a plain Dart class into a data class.
+/// 
+/// ```dart
+/// @Struct()
+/// class Person {
+///   final String name;
+/// }
+/// 
+/// void main() {
+///   // Generated const constructor with required, named parameters.
+///   const dash = Person(name: 'Dash');
+///   
+///   // Generated `toString`
+///   print(dash); // Person(name: Dash)
+/// 
+///   // Generated `copyWith`
+///   print(dash.copyWith(name: 'Sparky')); // Person(name: Sparky)
+/// 
+///   // Generated `hashCode` and `operator==` for value based equality.
+///   print(dash == Person(name: 'Dash')); // true
+/// }
+/// ```
+/// {@endtemplate}
 macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefinitionMacro {
   const Struct();
 
@@ -50,6 +77,12 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
     if (missingType != null) return null;
+
+    if (fields.isEmpty) {
+      return builder.declareInType(
+        DeclarationCode.fromString('const ${clazz.identifier.name}();'),
+      );
+    }
 
     return builder.declareInType(
       DeclarationCode.fromParts(
@@ -106,6 +139,15 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
 
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
     if (missingType != null) return null;
+    
+    if (fields.isEmpty) {
+      return builder.declareInType(
+        DeclarationCode.fromString(
+          'external ${clazz.identifier.name} copyWith();',
+        ),
+      );
+    }
+    
     return builder.declareInType(
       DeclarationCode.fromParts(
         [
@@ -140,12 +182,27 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
       Uri.parse('dart:core'),
       'identical',
     );
+    
+    if (fields.isEmpty) {
+      return equalsMethod.augment(
+        FunctionBodyCode.fromParts(
+          [
+            '{',
+            'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',
+            'return other is ${clazz.identifier.name} && ',
+            'other.runtimeType == runtimeType;',            
+            '}',          
+          ],
+        ),      
+      );
+    }
+    
     final lastField = fields.last;
     return equalsMethod.augment(
       FunctionBodyCode.fromParts(
         [
           '{',
-          'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',          
+          'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',
           'return other is ${clazz.identifier.name} && ',
           'other.runtimeType == runtimeType && ',          
           for (final field in fields)
@@ -175,6 +232,7 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
     final fields = fieldDeclarations.map(
       (f) => f.identifier.name,
     );
+
     return hashCodeMethod.augment(
       FunctionBodyCode.fromParts(
         [
@@ -240,14 +298,29 @@ macro class Struct with _Shared implements ClassDeclarationsMacro, ClassDefiniti
       ),
     );
     final docComments = CommentCode.fromString('/// Create a copy of [$clazzName] and replace zero or more fields.');
+
+    if (fields.isEmpty) {
+      return copyWithMethod.augment(
+        FunctionBodyCode.fromParts(
+          [
+            '=> ',
+            clazzName,
+            '();',
+          ],
+        ),
+        docComments: docComments,
+      );
+    }
+
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
+    
     if (missingType != null) {
       return copyWithMethod.augment(
-      FunctionBodyCode.fromString(
-        '=> throw "Unable to copyWith to due missing type ${missingType.rawType.code.debugString}',
-      ),
-      docComments: docComments,
-    );
+        FunctionBodyCode.fromString(
+          '=> throw "Unable to copyWith to due missing type ${missingType.rawType.code.debugString}',
+        ),
+        docComments: docComments,
+      );
     }
         
     return copyWithMethod.augment(

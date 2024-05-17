@@ -10,12 +10,17 @@ class Person {
 }
 
 void main() {
+  // 🪨 Create a const instance with required, name parameters.
   const jane = Person(name: 'Jane', age: 42);
+  
+  // 🖨️ Create copies of your object.
   final john = jane.copyWith(name: 'John');
 
+  // ✨ Human-readable string representation.
   print(jane); // Person(name: Jane, age: 42)
   print(john); // Person(name: John, age: 42)
 
+  // ☯️ Value equality comparisons.
   print(jane == jane.copyWith()); // true
   print(john == john.copyWith(age: 21)); // false
 }
