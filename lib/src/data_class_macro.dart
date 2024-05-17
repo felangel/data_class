@@ -4,6 +4,7 @@ import 'dart:core';
 // ignore: unused_import
 import 'package:data_class_macro/data_class_macro.dart';
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
 /// {@template data}
@@ -30,7 +31,7 @@ import 'package:macros/macros.dart';
 /// }
 /// ```
 /// {@endtemplate}
-macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinitionMacro {
+macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
   /// {@macro data}
   const Data();
 
@@ -40,7 +41,7 @@ macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinition
     MemberDeclarationBuilder builder,
   ) {
     return Future.wait([
-      _declareNamedConstructor(clazz, builder),
+       const Constructable().buildDeclarationsForClass(clazz, builder),
       _declareEquals(clazz, builder),
       _declareHashCode(clazz, builder),
       _declareToString(clazz, builder),
@@ -59,41 +60,6 @@ macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinition
       _buildToString(clazz, builder),
       _buildCopyWith(clazz, builder),
     ]);
-  }
-
-  Future<void> _declareNamedConstructor(
-    ClassDeclaration clazz,
-    MemberDeclarationBuilder builder,
-  ) async {
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = await Future.wait(
-      fieldDeclarations.map(
-        (f) async => (
-          identifier: f.identifier,
-          type: _checkNamedType(f.type, builder),
-        ),
-      ),
-    );
-
-    final missingType = fields.firstWhereOrNull((f) => f.type == null);
-    if (missingType != null) return null;
-
-    if (fields.isEmpty) {
-      return builder.declareInType(
-        DeclarationCode.fromString('const ${clazz.identifier.name}();'),
-      );
-    }
-
-    return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'const ${clazz.identifier.name}({',
-          for (final field in fields)
-            ...['required', ' ', 'this.', field.identifier.name, ','],
-          '});',
-        ],
-      ),
-    );
   }
 
   Future<void> _declareEquals(
@@ -132,7 +98,7 @@ macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinition
       fieldDeclarations.map(
         (f) async => (
           identifier: f.identifier,
-          type: _checkNamedType(f.type, builder),
+          type: checkNamedType(f.type, builder),
         ),
       ),
     );
@@ -293,7 +259,7 @@ macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinition
         (f) async => (
           identifier: f.identifier,
           rawType: f.type,
-          type: _checkNamedType(f.type, builder),
+          type: checkNamedType(f.type, builder),
         ),
       ),
     );
@@ -339,53 +305,3 @@ macro class Data with _Shared implements ClassDeclarationsMacro, ClassDefinition
   }
 }
 
-mixin _Shared {
-  NamedTypeAnnotation? _checkNamedType(TypeAnnotation type, Builder builder) {
-    if (type is NamedTypeAnnotation) return type;
-    if (type is OmittedTypeAnnotation) {
-      builder.report(Diagnostic(
-          DiagnosticMessage(
-              'Only fields with explicit types are allowed on data classes, please add a type.',
-              target: type.asDiagnosticTarget),
-          Severity.error));
-    } else {
-      builder.report(Diagnostic(
-          DiagnosticMessage(
-              'Only fields with named types are allowed on data classes.',
-              target: type.asDiagnosticTarget),
-          Severity.error));
-    }
-    return null;
-  }
-}
-
-extension on TypeDefinitionBuilder {
-  Future<Identifier> getIdentifier(Uri library, String name) {
-    // ignore: deprecated_member_use
-    return resolveIdentifier(library, name);
-  }
-}
-
-extension on Code {
-  /// Used for error messages.
-  String get debugString {
-    final buffer = StringBuffer();
-    _writeDebugString(buffer);
-    return buffer.toString();
-  }
-
-  void _writeDebugString(StringBuffer buffer) {
-    for (final part in parts) {
-      switch (part) {
-        case Code():
-          part._writeDebugString(buffer);
-        case Identifier():
-          buffer.write(part.name);
-        case OmittedTypeAnnotation():
-          buffer.write('<omitted>');
-        default:
-          buffer.write(part);
-      }
-    }
-  }
-}
