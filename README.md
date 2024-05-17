@@ -4,9 +4,7 @@
 [![pub package](https://img.shields.io/pub/v/struct_annotation.svg)](https://pub.dev/packages/struct_annotation)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
-**🚧 Experimental 🚧**
-
-Experimental support for data classes in Dart using [macros](https://dart.dev/language/macros).
+**🚧 Experimental** support for data classes in Dart using [macros](https://dart.dev/language/macros).
 
 ## ✨ Features
 
