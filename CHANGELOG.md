@@ -1,3 +1,9 @@
+## 0.0.0-dev.3
+
+- feat: support for empty classes
+- docs: improved example and `README.md`
+- tests: unit tests
+
 ## 0.0.0-dev.2
 
 - feat: generate named constructor
