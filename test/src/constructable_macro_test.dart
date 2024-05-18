@@ -4,6 +4,13 @@ import 'package:test/test.dart';
 @Constructable()
 class EmptyClass {}
 
+abstract class PlainEmptyBaseClass {
+  const PlainEmptyBaseClass();
+}
+
+@Data()
+class EmptySubClass extends PlainEmptyBaseClass {}
+
 @Constructable()
 class StringFieldClass {
   final String value;
@@ -18,6 +25,13 @@ void main() {
   group(EmptyClass, () {
     test('constructor', () {
       expect(const EmptyClass(), isA<EmptyClass>());
+    });
+  });
+
+  group(EmptySubClass, () {
+    test('constructor', () {
+      expect(const EmptySubClass(), isA<EmptySubClass>());
+      expect(const EmptySubClass(), isA<PlainEmptyBaseClass>());
     });
   });
 

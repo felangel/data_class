@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:macros/macros.dart';
 
 NamedTypeAnnotation? checkNamedType(TypeAnnotation type, Builder builder) {
@@ -40,10 +41,32 @@ Future<Identifier> collectionDeepCollectionEquality(
   return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
 }
 
-extension TypeDefinitionX on TypeDefinitionBuilder {
+extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
   Future<Identifier> _getIdentifier(Uri library, String name) {
     // ignore: deprecated_member_use
     return resolveIdentifier(library, name);
+  }
+
+}
+
+extension FormalParameterDeclarationX on FormalParameterDeclaration {
+  Future<TypeAnnotation?> resolveType(MemberDeclarationBuilder builder, TypeDeclaration clazz) async {
+    if (type is NamedTypeAnnotation) return type;    
+    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final field = fieldDeclarations.firstWhereOrNull((f) => f.identifier.name == name);
+    if (field == null) {
+      builder.report(
+        Diagnostic(
+          DiagnosticMessage(
+            'Only fields with explicit types are allowed on data classes, please add a type.',
+            target: this.asDiagnosticTarget,
+          ),
+          Severity.error,
+        ),
+      );
+      return null;
+    }
+    return field.type;
   }
 }
 

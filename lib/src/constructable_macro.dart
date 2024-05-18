@@ -38,10 +38,64 @@ macro class Constructable implements ClassDeclarationsMacro {
       throw ArgumentError('A default constructor already exists.');
     }
 
+    final superclass = clazz.superclass != null 
+      ? await builder.typeDeclarationOf(clazz.superclass!.identifier) 
+      : null;
+
+    final List<({Identifier identifier, TypeAnnotation? type})> superclassPositionalParams = [];
+    final List<({Identifier identifier, TypeAnnotation? type})> superclassNamedParams = [];
+
+    if (superclass != null) {
+      final superConstructors = await builder.constructorsOf(superclass);
+      final defaultSuperConstructor = superConstructors.firstWhereOrNull(
+        (c) => c.identifier.name == '',
+      );
+
+      if (defaultSuperConstructor == null) {
+        builder.report(
+          Diagnostic(
+            DiagnosticMessage(
+              'Super class of ${clazz.identifier.name} must have a default constructor',
+              target: superclass.asDiagnosticTarget,
+            ),
+            Severity.error,
+          ),
+        );
+        return;
+      }
+
+      // TODO(felangel): Ensure the super constructor is const
+      // https://github.com/dart-lang/sdk/issues/55768
+
+      for (final positionalParameter in defaultSuperConstructor.positionalParameters) {
+        final type = await positionalParameter.resolveType(builder, superclass);  
+        superclassPositionalParams.add((
+          identifier: positionalParameter.identifier,
+          type: type,
+        ));
+      }
+
+      for (final namedParameter in defaultSuperConstructor.namedParameters) {
+        final type = await namedParameter.resolveType(builder, superclass);
+        superclassNamedParams.add((
+          identifier: namedParameter.identifier,
+          type: type,
+        ));
+      }
+
+    }
+
+    final missingSuperType = [
+      ...superclassPositionalParams,
+      ...superclassNamedParams,
+    ].firstWhereOrNull((f) => f.type == null);
+    if (missingSuperType != null) return null;
+
     final fieldDeclarations = await builder.fieldsOf(clazz);
     final fields = await Future.wait(
       fieldDeclarations.map(
         (f) async => (
+          diagnosticTarget: f.asDiagnosticTarget,
           identifier: f.identifier,
           type: checkNamedType(f.type, builder),
         ),
@@ -57,16 +111,27 @@ macro class Constructable implements ClassDeclarationsMacro {
       );
     }
 
-    return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'const ${clazz.identifier.name}({',
-          for (final field in fields)
-            ...[if (!field.type!.isNullable) 'required', ' ', 'this.', field.identifier.name, ','],
-          '});',
-        ],
-      ),
+    final declaration = DeclarationCode.fromParts(
+      [
+        'const ${clazz.identifier.name}({\n',
+        for (final param in [...superclassPositionalParams, ...superclassNamedParams])
+          ...['  ', if (!param.type!.isNullable) 'required ', param.type!.code, if (param.type!.isNullable)'?', ' ', param.identifier.name, ',\n'],
+        for (final field in fields)
+          ...['  ', if (!field.type!.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
+        '})',
+        if (superclass != null)
+          ...[
+            ': super(\n',
+            for (final param in superclassPositionalParams)
+              ...['  ', param.identifier.name, ',\n'],
+            for (final param in superclassNamedParams)
+              ...['  ', param.identifier.name, ': ', param.identifier.name, ',\n'],
+            ')',
+          ],
+        ';'
+      ],
     );
+    return builder.declareInType(declaration);
   }
 }
 
