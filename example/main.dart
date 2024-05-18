@@ -7,10 +7,6 @@ abstract class Thing {
   final String name;
 }
 
-class Foo extends Thing {
-  const Foo({required int id, required String name}) : super(id, name: name);
-}
-
 @Constructable()
 class Person extends Thing {
   final String? nickname;

@@ -11,6 +11,22 @@ abstract class PlainEmptyBaseClass {
 @Data()
 class EmptySubClass extends PlainEmptyBaseClass {}
 
+abstract class PlainPositionalStringBaseClass {
+  const PlainPositionalStringBaseClass(this.value);
+
+  final String value;
+}
+
+@Constructable()
+class EmptyPlainPositionalStringSubclass
+    extends PlainPositionalStringBaseClass {}
+
+@Constructable()
+class StringFieldPlainPositionalStringSubclass
+    extends PlainPositionalStringBaseClass {
+  final String field;
+}
+
 @Constructable()
 class StringFieldClass {
   final String value;
@@ -32,6 +48,25 @@ void main() {
     test('constructor', () {
       expect(const EmptySubClass(), isA<EmptySubClass>());
       expect(const EmptySubClass(), isA<PlainEmptyBaseClass>());
+    });
+  });
+
+  group(EmptyPlainPositionalStringSubclass, () {
+    test('constructor', () {
+      const instance = EmptyPlainPositionalStringSubclass(value: 'value');
+      expect(instance.value, equals('value'));
+      expect(instance, isA<EmptyPlainPositionalStringSubclass>());
+      expect(instance, isA<PlainPositionalStringBaseClass>());
+    });
+  });
+
+  group(StringFieldPlainPositionalStringSubclass, () {
+    test('constructor', () {
+      const instance = StringFieldPlainPositionalStringSubclass(value: 'value', field: 'field');
+      expect(instance.value, equals('value'));
+      expect(instance.field, equals('field'));
+      expect(instance, isA<StringFieldPlainPositionalStringSubclass>());
+      expect(instance, isA<PlainPositionalStringBaseClass>());
     });
   });
 

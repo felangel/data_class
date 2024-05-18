@@ -105,7 +105,9 @@ macro class Constructable implements ClassDeclarationsMacro {
     final missingType = fields.firstWhereOrNull((f) => f.type == null);
     if (missingType != null) return null;
 
-    if (fields.isEmpty) {
+    final superclassParams = [...superclassPositionalParams, ...superclassNamedParams];
+
+    if (fields.isEmpty && superclassParams.isEmpty) {
       return builder.declareInType(
         DeclarationCode.fromString('const ${clazz.identifier.name}();'),
       );
@@ -114,7 +116,7 @@ macro class Constructable implements ClassDeclarationsMacro {
     final declaration = DeclarationCode.fromParts(
       [
         'const ${clazz.identifier.name}({\n',
-        for (final param in [...superclassPositionalParams, ...superclassNamedParams])
+        for (final param in superclassParams)
           ...['  ', if (!param.type!.isNullable) 'required ', param.type!.code, if (param.type!.isNullable)'?', ' ', param.identifier.name, ',\n'],
         for (final field in fields)
           ...['  ', if (!field.type!.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
