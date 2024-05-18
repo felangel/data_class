@@ -17,13 +17,29 @@ abstract class PlainPositionalStringBaseClass {
   final String value;
 }
 
+abstract class PlainNamedStringBaseClass {
+  const PlainNamedStringBaseClass({required this.value});
+
+  final String value;
+}
+
 @Constructable()
 class EmptyPlainPositionalStringSubclass
     extends PlainPositionalStringBaseClass {}
 
 @Constructable()
+class EmptyPlainNamedStringSubclass
+    extends PlainNamedStringBaseClass {}
+
+@Constructable()
 class StringFieldPlainPositionalStringSubclass
     extends PlainPositionalStringBaseClass {
+  final String field;
+}
+
+@Constructable()
+class StringFieldPlainNamedStringSubclass
+    extends PlainNamedStringBaseClass {
   final String field;
 }
 
@@ -37,7 +53,7 @@ class NullableStringFieldClass {
   final String? value;
 }
 
-void main() {
+void main() {  
   group(EmptyClass, () {
     test('constructor', () {
       expect(const EmptyClass(), isA<EmptyClass>());
@@ -60,6 +76,15 @@ void main() {
     });
   });
 
+  group(EmptyPlainNamedStringSubclass, () {
+    test('constructor', () {
+      const instance = EmptyPlainNamedStringSubclass(value: 'value');
+      expect(instance.value, equals('value'));
+      expect(instance, isA<EmptyPlainNamedStringSubclass>());
+      expect(instance, isA<PlainNamedStringBaseClass>());
+    });
+  });
+
   group(StringFieldPlainPositionalStringSubclass, () {
     test('constructor', () {
       const instance = StringFieldPlainPositionalStringSubclass(value: 'value', field: 'field');
@@ -67,6 +92,16 @@ void main() {
       expect(instance.field, equals('field'));
       expect(instance, isA<StringFieldPlainPositionalStringSubclass>());
       expect(instance, isA<PlainPositionalStringBaseClass>());
+    });
+  });
+
+  group(StringFieldPlainNamedStringSubclass, () {
+    test('constructor', () {
+      const instance = StringFieldPlainNamedStringSubclass(value: 'value', field: 'field');
+      expect(instance.value, equals('value'));
+      expect(instance.field, equals('field'));
+      expect(instance, isA<StringFieldPlainNamedStringSubclass>());
+      expect(instance, isA<PlainNamedStringBaseClass>());
     });
   });
 
