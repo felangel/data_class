@@ -33,6 +33,11 @@ macro class Constructable implements ClassDeclarationsMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
+    final constructors = await builder.constructorsOf(clazz);
+    if (constructors.any((c) => c.identifier.name == '')) {
+      throw ArgumentError('A default constructor already exists.');
+    }
+
     final fieldDeclarations = await builder.fieldsOf(clazz);
     final fields = await Future.wait(
       fieldDeclarations.map(
