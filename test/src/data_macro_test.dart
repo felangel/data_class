@@ -1,4 +1,4 @@
-import 'package:data_class_macro/src/data_macro.dart';
+import 'package:data_class_macro/data_class_macro.dart';
 import 'package:test/test.dart';
 
 @Data()
