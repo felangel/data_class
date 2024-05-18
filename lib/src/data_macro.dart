@@ -39,7 +39,7 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     return Future.wait([
       const Constructable().buildDeclarationsForClass(clazz, builder),
       const Equatable().buildDeclarationsForClass(clazz, builder),
-      const Stringify().buildDeclarationsForClass(clazz, builder),
+      const Stringable().buildDeclarationsForClass(clazz, builder),
       const Copyable().buildDeclarationsForClass(clazz, builder),
     ]);
   }
@@ -51,7 +51,7 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
   ) {
     return Future.wait([
       const Equatable().buildDefinitionForClass(clazz, builder),
-      const Stringify().buildDefinitionForClass(clazz, builder),
+      const Stringable().buildDefinitionForClass(clazz, builder),
       const Copyable().buildDefinitionForClass(clazz, builder),      
     ]);
   }

@@ -1,18 +1,18 @@
 import 'package:data_class_macro/data_class_macro.dart';
 import 'package:test/test.dart';
 
-@Stringify()
+@Stringable()
 class EmptyClass {
   const EmptyClass();
 }
 
-@Stringify()
+@Stringable()
 class StringFieldClass {
   const StringFieldClass({required this.value});
   final String value;
 }
 
-@Stringify()
+@Stringable()
 class NullableStringFieldClass {
   const NullableStringFieldClass({this.value});
   final String? value;

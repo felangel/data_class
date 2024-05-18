@@ -3,11 +3,11 @@ import 'dart:core';
 import 'package:collection/collection.dart';
 import 'package:macros/macros.dart';
 
-/// {@template stringify}
+/// {@template stringable}
 /// An experimental macro which adds a human-readable `toString`.
 /// 
 /// ```dart
-/// @Stringify()
+/// @Stringable()
 /// class Person {
 ///   const Person({required this.name});
 ///   final String name;
@@ -19,9 +19,9 @@ import 'package:macros/macros.dart';
 /// }
 /// ```
 /// {@endtemplate}
-macro class Stringify implements ClassDeclarationsMacro, ClassDefinitionMacro {
-  /// {@macro stringify}
-  const Stringify();
+macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
+  /// {@macro stringable}
+  const Stringable();
 
   @override
   Future<void> buildDeclarationsForClass(
