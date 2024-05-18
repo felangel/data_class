@@ -27,11 +27,11 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
   Future<void> buildDeclarationsForClass(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
-  ) {
-    return Future.wait([
+  )  {
+    return [
       _declareEquals(clazz, builder),
       _declareHashCode(clazz, builder),
-    ]);
+    ].wait;
   }
 
   @override
@@ -39,10 +39,10 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
   ) {
-    return Future.wait([
+    return [
       _buildEquals(clazz, builder),
       _buildHashCode(clazz, builder),
-    ]);
+    ].wait;
   }
 
   Future<void> _declareEquals(
@@ -72,19 +72,17 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       (m) => m.identifier.name == '==',
     );
     if (equality == null) return;
-    final equalsMethod = await builder.buildMethod(equality.identifier);
-    final deepCollectionEquality = await builder.getIdentifier(
-      Uri.parse('package:data_class_macro/data_class_macro.dart'),
-      'deepCollectionEquality',
-    );
-    final fieldDeclarations = await builder.fieldsOf(clazz);
+    
+    final (equalsMethod, deepCollectionEquality, fieldDeclarations) = await (
+      builder.buildMethod(equality.identifier),
+      collectionDeepCollectionEquality(builder),
+      builder.fieldsOf(clazz),
+    ).wait;
+    
     final fields = fieldDeclarations.map(
       (f) => f.identifier.name,
     );
-    final identical = await builder.getIdentifier(
-      Uri.parse('dart:core'),
-      'identical',
-    );
+    final identical = await dartCoreIdentical(builder);
     
     if (fields.isEmpty) {
       return equalsMethod.augment(
@@ -126,12 +124,12 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       (m) => m.identifier.name == 'hashCode',
     );
     if (hashCode == null) return;
-    final hashCodeMethod = await builder.buildMethod(hashCode.identifier);
-    final object = await builder.getIdentifier(
-      Uri.parse('dart:core'),
-      'Object',
-    );
-    final fieldDeclarations = await builder.fieldsOf(clazz);
+
+    final (hashCodeMethod, object, fieldDeclarations) = await (
+      builder.buildMethod(hashCode.identifier),
+      dartCoreObject(builder),
+      builder.fieldsOf(clazz),
+    ).wait;    
     final fields = fieldDeclarations.map(
       (f) => f.identifier.name,
     );
