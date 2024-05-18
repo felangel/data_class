@@ -1,3 +1,12 @@
+## 0.0.0-dev.7
+
+- feat: add `@Constructable` macro (`const` constructor)
+- feat: add `@Equatable` macro (`operator==` and `hashCode`)
+- feat: add `@Stringable` macro (`toString`)
+- feat: add `@Copyable` macro (`copyWith`)
+- feat: make nullable fields optional constructor params
+- feat: throw if a default constructor already exists
+
 ## 0.0.0-dev.6
 
 - chore: rename to `Data()` to avoid confusion
