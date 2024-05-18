@@ -26,9 +26,7 @@ macro class Constructable implements ClassDeclarationsMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) {
-    return Future.wait([
-      _declareNamedConstructor(clazz, builder),      
-    ]);
+    return _declareNamedConstructor(clazz, builder);
   }
 
   Future<void> _declareNamedConstructor(
@@ -59,7 +57,7 @@ macro class Constructable implements ClassDeclarationsMacro {
         [
           'const ${clazz.identifier.name}({',
           for (final field in fields)
-            ...['required', ' ', 'this.', field.identifier.name, ','],
+            ...[if (!field.type!.isNullable) 'required', ' ', 'this.', field.identifier.name, ','],
           '});',
         ],
       ),

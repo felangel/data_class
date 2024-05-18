@@ -42,7 +42,7 @@ void main() {
 
     setUp(() {
       nonNullInstance = const NullableStringFieldClass(value: 'hello');
-      nullInstance = const NullableStringFieldClass(value: null);
+      nullInstance = const NullableStringFieldClass();
     });
 
     test('constructor', () {
