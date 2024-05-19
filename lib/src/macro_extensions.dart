@@ -3,31 +3,10 @@ import 'package:macros/macros.dart';
 
 typedef FieldMetadata = ({String name, bool isRequired, TypeAnnotation? type});
 
-NamedTypeAnnotation? checkNamedType(TypeAnnotation type, Builder builder) {
-  if (type is NamedTypeAnnotation) return type;
-  if (type is OmittedTypeAnnotation) {
-    builder.report(
-      Diagnostic(
-        DiagnosticMessage(
-          'Only fields with explicit types are allowed on data classes, please add a type.',
-          target: type.asDiagnosticTarget,
-        ),
-        Severity.error,
-      ),
-    );
-  } else {
-    builder.report(
-      Diagnostic(
-        DiagnosticMessage(
-          'Only fields with named types are allowed on data classes.',
-          target: type.asDiagnosticTarget,
-        ),
-        Severity.error,
-      ),
-    );
-  }
-  return null;
-}
+typedef ConstructorParams = ({
+  List<FieldMetadata> positional,
+  List<FieldMetadata> named,
+});
 
 Future<Identifier> dartCoreIdentical(TypeDefinitionBuilder builder) {
   return builder._getIdentifier(_dartCore, 'identical');
@@ -43,7 +22,77 @@ Future<Identifier> collectionDeepCollectionEquality(
   return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
 }
 
+extension FieldMetadataX on FieldMetadata {
+  List<Object> toConstructorParts() {
+    return ['    ', if (isRequired) 'required ', type!.code, ' ', name, ',\n'];
+  }
+
+  List<Object> toSuperPositionalParts() => ['    ', name, ',\n'];
+  List<Object> toSuperNamedParts() => ['    ', name, ': ', name, ',\n'];
+}
+
+extension TypeAnnotationX on TypeAnnotation {
+  T cast<T extends TypeAnnotation>() => this as T;
+
+  NamedTypeAnnotation? checkNamed(Builder builder) {
+    if (this is NamedTypeAnnotation) return this as NamedTypeAnnotation;
+    if (this is OmittedTypeAnnotation) {
+      builder.report(
+        Diagnostic(
+          DiagnosticMessage(
+            'Only fields with explicit types are allowed on data classes, please add a type.',
+            target: asDiagnosticTarget,
+          ),
+          Severity.error,
+        ),
+      );
+    } else {
+      builder.report(
+        Diagnostic(
+          DiagnosticMessage(
+            'Only fields with named types are allowed on data classes.',
+            target: asDiagnosticTarget,
+          ),
+          Severity.error,
+        ),
+      );
+    }
+    return null;
+  }
+}
+
 extension TypeDeclarationX on TypeDeclaration {
+  Future<ConstructorParams> constructorParams(
+    ConstructorDeclaration constructor,
+    MemberDeclarationBuilder builder,
+  ) async {
+    final List<FieldMetadata> positional = [];
+    final List<FieldMetadata> named = [];
+
+    // TODO(felangel): refactor this to run in parallel.
+    for (final positionalParameter in constructor.positionalParameters) {
+      final type = await positionalParameter.resolveType(builder, this);
+      positional.add((
+        // TODO(felangel): this workaround until we are able to detect default values.
+        isRequired:
+            type?.isNullable == false ? true : positionalParameter.isRequired,
+        name: positionalParameter.identifier.name,
+        type: type,
+      ));
+    }
+
+    for (final namedParameter in constructor.namedParameters) {
+      final type = await namedParameter.resolveType(builder, this);
+      named.add((
+        isRequired: namedParameter.isRequired,
+        name: namedParameter.identifier.name,
+        type: type,
+      ));
+    }
+
+    return (positional: positional, named: named);
+  }
+
   Future<ConstructorDeclaration?> defaultConstructor(
     MemberDeclarationBuilder builder,
   ) async {
@@ -55,13 +104,25 @@ extension TypeDeclarationX on TypeDeclaration {
   }
 }
 
+extension FieldDeclarationX on FieldDeclaration {
+  List<Object> toConstructorParts() {
+    return [
+      '    ',
+      if (!type.isNullable) 'required ',
+      'this.',
+      identifier.name,
+      ',\n',
+    ];
+  }
+}
+
 extension ClassDeclarationX on ClassDeclaration {
   Future<TypeDeclaration?> superclassType(
     MemberDeclarationBuilder builder,
   ) async {
-    final superclassType = superclass != null 
-      ? await builder.typeDeclarationOf(superclass!.identifier) 
-      : null;
+    final superclassType = superclass != null
+        ? await builder.typeDeclarationOf(superclass!.identifier)
+        : null;
     return superclassType;
   }
 }

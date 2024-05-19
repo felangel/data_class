@@ -37,25 +37,17 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
   ) {
-    return _buildCopyWith(clazz, builder);    
+    return _buildCopyWith(clazz, builder);
   }
 
   Future<void> _declareCopyWith(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = await Future.wait(
-      fieldDeclarations.map(
-        (f) async => (
-          identifier: f.identifier,
-          type: checkNamedType(f.type, builder),
-        ),
-      ),
-    );
+    final fields = await builder.fieldsOf(clazz);
 
-    final missingType = fields.firstWhereOrNull((f) => f.type == null);
-    if (missingType != null) return null;
+    // Ensure all class fields have a type.
+    if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
     
     if (fields.isEmpty) {
       return builder.declareInType(
@@ -64,17 +56,22 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
         ),
       );
     }
-    
-    return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'external ${clazz.identifier.name} copyWith({',
-          for (final field in fields)
-          ...[field.type!.identifier.name, if(field.type!.isNullable) '?', ' Function()? ', field.identifier.name, ',']
-          ,'});',
-        ],
-      ),
+
+    final declaration = DeclarationCode.fromParts(
+      [
+        'external ${clazz.identifier.name} copyWith({',
+        for (final field in fields)
+          ...[
+            field.type.cast<NamedTypeAnnotation>().identifier.name,
+            if(field.type.cast<NamedTypeAnnotation>().isNullable) '?',
+            ' Function()? ', field.identifier.name,
+            ',',
+          ]
+        ,'});',
+      ],
     );
+    
+    return builder.declareInType(declaration);
   }
 
   Future<void> _buildCopyWith(
@@ -88,16 +85,18 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (copyWith == null) return;
     final copyWithMethod = await builder.buildMethod(copyWith.identifier);
     final clazzName = clazz.identifier.name;
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = await Future.wait(
-      fieldDeclarations.map(
-        (f) async => (
-          identifier: f.identifier,
-          rawType: f.type,
-          type: checkNamedType(f.type, builder),
-        ),
-      ),
-    );
+
+    // final fieldDeclarations = await builder.fieldsOf(clazz);
+    // final fields = await Future.wait(
+    //   fieldDeclarations.map(
+    //     (f) async => (
+    //       identifier: f.identifier,
+    //       rawType: f.type,
+    //       type: f.type.checkNamed(builder),
+    //     ),
+    //   ),
+    // );
+    final fields = await builder.fieldsOf(clazz);
     final docComments = CommentCode.fromString('/// Create a copy of [$clazzName] and replace zero or more fields.');
 
     if (fields.isEmpty) {
@@ -113,17 +112,9 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       );
     }
 
-    final missingType = fields.firstWhereOrNull((f) => f.type == null);
-    
-    if (missingType != null) {
-      return copyWithMethod.augment(
-        FunctionBodyCode.fromString(
-          '=> throw "Unable to copyWith to due missing type ${missingType.rawType.code.debugString}',
-        ),
-        docComments: docComments,
-      );
-    }
-        
+    // Ensure all class fields have a type.
+    if (fields.any((f) => f.type.checkNamed(builder) == null)) return;
+
     return copyWithMethod.augment(
       FunctionBodyCode.fromParts(
         [

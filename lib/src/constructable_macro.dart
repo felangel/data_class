@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
@@ -38,18 +37,16 @@ macro class Constructable implements ClassDeclarationsMacro {
       throw ArgumentError('A default constructor already exists.');
     }
 
+    ConstructorParams superclassConstructorParams = (positional: [], named: []);
+    
     final superclass = await clazz.superclassType(builder);
-
-    final List<FieldMetadata> superclassPositionalParams = [];
-    final List<FieldMetadata> superclassNamedParams = [];
-
-    if (superclass != null) {      
+    if (superclass != null) {
       final defaultSuperConstructor = await superclass.defaultConstructor(builder);
       if (defaultSuperConstructor == null) {
         builder.report(
           Diagnostic(
             DiagnosticMessage(
-              'Super class of ${clazz.identifier.name} must have a default constructor',
+              '${superclass.identifier.name} must have a default constructor',
               target: superclass.asDiagnosticTarget,
             ),
             Severity.error,
@@ -58,50 +55,24 @@ macro class Constructable implements ClassDeclarationsMacro {
         return;
       }
 
+      superclassConstructorParams = await superclass.constructorParams(defaultSuperConstructor, builder,);
+
       // TODO(felangel): Ensure the super constructor is const
-      // https://github.com/dart-lang/sdk/issues/55768
-
-      for (final positionalParameter in defaultSuperConstructor.positionalParameters) {
-        final type = await positionalParameter.resolveType(builder, superclass);  
-        superclassPositionalParams.add((
-          // TODO(felangel): this workaround until we are able to detect default values.
-          isRequired: type?.isNullable == false ? true : positionalParameter.isRequired,
-          name: positionalParameter.identifier.name,
-          type: type,
-        ));
-      }
-
-      for (final namedParameter in defaultSuperConstructor.namedParameters) {
-        final type = await namedParameter.resolveType(builder, superclass);
-        superclassNamedParams.add((
-          isRequired: namedParameter.isRequired,
-          name: namedParameter.identifier.name,
-          type: type,
-        ));
-      }
+      // https://github.com/dart-lang/sdk/issues/55768      
     }
 
-    final missingSuperType = [
-      ...superclassPositionalParams,
-      ...superclassNamedParams,
-    ].firstWhereOrNull((f) => f.type == null);
-    if (missingSuperType != null) return null;
+    final superclassParams = [
+      ...superclassConstructorParams.positional,
+      ...superclassConstructorParams.named,
+    ];
+    
+    // Ensure all super class constructor params have a type.
+    if (superclassParams.any((p) => p.type == null)) return null;
 
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = await Future.wait(
-      fieldDeclarations.map(
-        (f) async => (
-          diagnosticTarget: f.asDiagnosticTarget,
-          identifier: f.identifier,
-          type: checkNamedType(f.type, builder),
-        ),
-      ),
-    );
-
-    final missingType = fields.firstWhereOrNull((f) => f.type == null);
-    if (missingType != null) return null;
-
-    final superclassParams = [...superclassPositionalParams, ...superclassNamedParams];
+    final fields = await builder.fieldsOf(clazz);
+    
+    // Ensure all class fields have a type.
+    if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
 
     if (fields.isEmpty && superclassParams.isEmpty) {
       return builder.declareInType(
@@ -112,18 +83,14 @@ macro class Constructable implements ClassDeclarationsMacro {
     final declaration = DeclarationCode.fromParts(
       [
         '  const ${clazz.identifier.name}({\n',
-        for (final param in superclassParams)
-          ...['    ', if (param.isRequired) 'required ', param.type!.code, ' ', param.name, ',\n'],
-        for (final field in fields)
-          ...['    ', if (!field.type!.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
+        for (final param in superclassParams) ...param.toConstructorParts(),
+        for (final field in fields) ...field.toConstructorParts(),          
         '  })',
         if (superclass != null)
           ...[
             ' : super(\n',
-            for (final param in superclassPositionalParams)
-              ...['    ', param.name, ',\n'],
-            for (final param in superclassNamedParams)
-              ...['    ', param.name, ': ', param.name, ',\n'],
+            for (final param in superclassConstructorParams.positional) ...param.toSuperPositionalParts(),              
+            for (final param in superclassConstructorParams.named) ...param.toSuperNamedParts(),              
             '  )',
           ],
         ';',
