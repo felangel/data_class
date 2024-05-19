@@ -83,14 +83,18 @@ macro class Constructable implements ClassDeclarationsMacro {
     final declaration = DeclarationCode.fromParts(
       [
         '  const ${clazz.identifier.name}({\n',
-        for (final param in superclassParams) ...param.toConstructorParts(),
-        for (final field in fields) ...field.toConstructorParts(),          
+        for (final param in superclassParams) 
+          ...['    ', if (param.isRequired) 'required ', param.type!.code, ' ', param.name, ',\n'],
+        for (final field in fields) 
+          ...['    ', if (!field.type.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
         '  })',
         if (superclass != null)
           ...[
             ' : super(\n',
-            for (final param in superclassConstructorParams.positional) ...param.toSuperPositionalParts(),              
-            for (final param in superclassConstructorParams.named) ...param.toSuperNamedParts(),              
+            for (final param in superclassConstructorParams.positional)
+              ...['    ', param.name, ',\n'],
+            for (final param in superclassConstructorParams.named)
+              ...['    ', param.name, ': ', param.name, ',\n'],
             '  )',
           ],
         ';',

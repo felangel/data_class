@@ -83,49 +83,36 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       (m) => m.identifier.name == 'copyWith',
     );
     if (copyWith == null) return;
+    
     final copyWithMethod = await builder.buildMethod(copyWith.identifier);
-    final clazzName = clazz.identifier.name;
+    final className = clazz.identifier.name;
 
-    // final fieldDeclarations = await builder.fieldsOf(clazz);
-    // final fields = await Future.wait(
-    //   fieldDeclarations.map(
-    //     (f) async => (
-    //       identifier: f.identifier,
-    //       rawType: f.type,
-    //       type: f.type.checkNamed(builder),
-    //     ),
-    //   ),
-    // );
     final fields = await builder.fieldsOf(clazz);
-    final docComments = CommentCode.fromString('/// Create a copy of [$clazzName] and replace zero or more fields.');
+    final docComments = CommentCode.fromString('/// Create a copy of [$className] and replace zero or more fields.');
 
     if (fields.isEmpty) {
       return copyWithMethod.augment(
-        FunctionBodyCode.fromParts(
-          [
-            '=> ',
-            clazzName,
-            '();',
-          ],
-        ),
+        FunctionBodyCode.fromParts(['=> ', className, '();']),
         docComments: docComments,
       );
     }
 
     // Ensure all class fields have a type.
     if (fields.any((f) => f.type.checkNamed(builder) == null)) return;
+    
+    final body = FunctionBodyCode.fromParts(
+      [
+        '=> ',
+        className,
+        '(',
+        for (final field in fields)
+          ...[field.identifier.name, ': ', field.identifier.name, '!= null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
+        ');'
+      ],
+    );
 
     return copyWithMethod.augment(
-      FunctionBodyCode.fromParts(
-        [
-          '=> ',
-          clazzName,
-          '(',
-          for (final field in fields)
-            ...[field.identifier.name, ': ', field.identifier.name, '!= null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
-          ');'
-        ],
-      ),
+      body,
       docComments: docComments,
     );
   }

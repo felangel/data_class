@@ -22,15 +22,6 @@ Future<Identifier> collectionDeepCollectionEquality(
   return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
 }
 
-extension FieldMetadataX on FieldMetadata {
-  List<Object> toConstructorParts() {
-    return ['    ', if (isRequired) 'required ', type!.code, ' ', name, ',\n'];
-  }
-
-  List<Object> toSuperPositionalParts() => ['    ', name, ',\n'];
-  List<Object> toSuperNamedParts() => ['    ', name, ': ', name, ',\n'];
-}
-
 extension TypeAnnotationX on TypeAnnotation {
   T cast<T extends TypeAnnotation>() => this as T;
 
@@ -101,18 +92,6 @@ extension TypeDeclarationX on TypeDeclaration {
       (c) => c.identifier.name == '',
     );
     return defaultConstructor;
-  }
-}
-
-extension FieldDeclarationX on FieldDeclaration {
-  List<Object> toConstructorParts() {
-    return [
-      '    ',
-      if (!type.isNullable) 'required ',
-      'this.',
-      identifier.name,
-      ',\n',
-    ];
   }
 }
 
