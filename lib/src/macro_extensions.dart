@@ -66,8 +66,8 @@ extension TypeDeclarationX on TypeDeclaration {
     ConstructorDeclaration constructor,
     MemberDeclarationBuilder builder,
   ) async {
-    final List<FieldMetadata> positional = [];
-    final List<FieldMetadata> named = [];
+    final positional = <FieldMetadata>[];
+    final named = <FieldMetadata>[];
 
     // TODO(felangel): refactor this to run in parallel.
     for (final positionalParameter in constructor.positionalParameters) {

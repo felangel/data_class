@@ -31,7 +31,7 @@ macro class Constructable implements ClassDeclarationsMacro {
   Future<void> _declareNamedConstructor(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
-  ) async {    
+  ) async {
     final defaultClassConstructor = await clazz.defaultConstructor(builder);
     if (defaultClassConstructor != null) {
       throw ArgumentError('A default constructor already exists.');
