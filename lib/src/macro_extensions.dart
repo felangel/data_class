@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:macros/macros.dart';
 
+typedef FieldMetadata = ({String name, bool isRequired, TypeAnnotation? type});
+
 NamedTypeAnnotation? checkNamedType(TypeAnnotation type, Builder builder) {
   if (type is NamedTypeAnnotation) return type;
   if (type is OmittedTypeAnnotation) {
@@ -41,19 +43,46 @@ Future<Identifier> collectionDeepCollectionEquality(
   return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
 }
 
+extension TypeDeclarationX on TypeDeclaration {
+  Future<ConstructorDeclaration?> defaultConstructor(
+    MemberDeclarationBuilder builder,
+  ) async {
+    final constructors = await builder.constructorsOf(this);
+    final defaultConstructor = constructors.firstWhereOrNull(
+      (c) => c.identifier.name == '',
+    );
+    return defaultConstructor;
+  }
+}
+
+extension ClassDeclarationX on ClassDeclaration {
+  Future<TypeDeclaration?> superclassType(
+    MemberDeclarationBuilder builder,
+  ) async {
+    final superclassType = superclass != null 
+      ? await builder.typeDeclarationOf(superclass!.identifier) 
+      : null;
+    return superclassType;
+  }
+}
+
 extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
   Future<Identifier> _getIdentifier(Uri library, String name) {
     // ignore: deprecated_member_use
     return resolveIdentifier(library, name);
   }
-
 }
 
 extension FormalParameterDeclarationX on FormalParameterDeclaration {
-  Future<TypeAnnotation?> resolveType(MemberDeclarationBuilder builder, TypeDeclaration clazz) async {
-    if (type is NamedTypeAnnotation) return type;    
+  Future<TypeAnnotation?> resolveType(
+    MemberDeclarationBuilder builder,
+    TypeDeclaration clazz,
+  ) async {
+    if (type is NamedTypeAnnotation) return type;
     final fieldDeclarations = await builder.fieldsOf(clazz);
-    final field = fieldDeclarations.firstWhereOrNull((f) => f.identifier.name == name);
+    final field = fieldDeclarations.firstWhereOrNull(
+      (f) => f.identifier.name == name,
+    );
     if (field == null) {
       builder.report(
         Diagnostic(

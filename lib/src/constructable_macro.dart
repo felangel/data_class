@@ -32,25 +32,19 @@ macro class Constructable implements ClassDeclarationsMacro {
   Future<void> _declareNamedConstructor(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
-  ) async {
-    final constructors = await builder.constructorsOf(clazz);
-    if (constructors.any((c) => c.identifier.name == '')) {
+  ) async {    
+    final defaultClassConstructor = await clazz.defaultConstructor(builder);
+    if (defaultClassConstructor != null) {
       throw ArgumentError('A default constructor already exists.');
     }
 
-    final superclass = clazz.superclass != null 
-      ? await builder.typeDeclarationOf(clazz.superclass!.identifier) 
-      : null;
+    final superclass = await clazz.superclassType(builder);
 
-    final List<({Identifier identifier, TypeAnnotation? type})> superclassPositionalParams = [];
-    final List<({Identifier identifier, TypeAnnotation? type})> superclassNamedParams = [];
+    final List<FieldMetadata> superclassPositionalParams = [];
+    final List<FieldMetadata> superclassNamedParams = [];
 
-    if (superclass != null) {
-      final superConstructors = await builder.constructorsOf(superclass);
-      final defaultSuperConstructor = superConstructors.firstWhereOrNull(
-        (c) => c.identifier.name == '',
-      );
-
+    if (superclass != null) {      
+      final defaultSuperConstructor = await superclass.defaultConstructor(builder);
       if (defaultSuperConstructor == null) {
         builder.report(
           Diagnostic(
@@ -70,7 +64,9 @@ macro class Constructable implements ClassDeclarationsMacro {
       for (final positionalParameter in defaultSuperConstructor.positionalParameters) {
         final type = await positionalParameter.resolveType(builder, superclass);  
         superclassPositionalParams.add((
-          identifier: positionalParameter.identifier,
+          // TODO(felangel): this workaround until we are able to detect default values.
+          isRequired: type?.isNullable == false ? true : positionalParameter.isRequired,
+          name: positionalParameter.identifier.name,
           type: type,
         ));
       }
@@ -78,11 +74,11 @@ macro class Constructable implements ClassDeclarationsMacro {
       for (final namedParameter in defaultSuperConstructor.namedParameters) {
         final type = await namedParameter.resolveType(builder, superclass);
         superclassNamedParams.add((
-          identifier: namedParameter.identifier,
+          isRequired: namedParameter.isRequired,
+          name: namedParameter.identifier.name,
           type: type,
         ));
       }
-
     }
 
     final missingSuperType = [
@@ -115,25 +111,25 @@ macro class Constructable implements ClassDeclarationsMacro {
 
     final declaration = DeclarationCode.fromParts(
       [
-        'const ${clazz.identifier.name}({\n',
+        '  const ${clazz.identifier.name}({\n',
         for (final param in superclassParams)
-          ...['  ', if (!param.type!.isNullable) 'required ', param.type!.code, if (param.type!.isNullable)'?', ' ', param.identifier.name, ',\n'],
+          ...['    ', if (param.isRequired) 'required ', param.type!.code, ' ', param.name, ',\n'],
         for (final field in fields)
-          ...['  ', if (!field.type!.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
-        '})',
+          ...['    ', if (!field.type!.isNullable) 'required ', 'this.', field.identifier.name, ',\n'],
+        '  })',
         if (superclass != null)
           ...[
-            ': super(\n',
+            ' : super(\n',
             for (final param in superclassPositionalParams)
-              ...['  ', param.identifier.name, ',\n'],
+              ...['    ', param.name, ',\n'],
             for (final param in superclassNamedParams)
-              ...['  ', param.identifier.name, ': ', param.identifier.name, ',\n'],
-            ')',
+              ...['    ', param.name, ': ', param.name, ',\n'],
+            '  )',
           ],
-        ';'
+        ';',
       ],
     );
+
     return builder.declareInType(declaration);
   }
 }
-
