@@ -73,16 +73,14 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (equality == null) return;
     
-    final (equalsMethod, deepCollectionEquality, fieldDeclarations) = await (
+    final (equalsMethod, deepCollectionEquality, fieldDeclarations, identical) = await (
       builder.buildMethod(equality.identifier),
       collectionDeepCollectionEquality(builder),
       builder.fieldsOf(clazz),
+      dartCoreIdentical(builder),
     ).wait;
     
-    final fields = fieldDeclarations.map(
-      (f) => f.identifier.name,
-    );
-    final identical = await dartCoreIdentical(builder);
+    final fields = fieldDeclarations.map((f) => f.identifier.name);
     
     if (fields.isEmpty) {
       return equalsMethod.augment(
