@@ -36,12 +36,12 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) {
-    return Future.wait([
+    return [
       const Constructable().buildDeclarationsForClass(clazz, builder),
       const Equatable().buildDeclarationsForClass(clazz, builder),
       const Stringable().buildDeclarationsForClass(clazz, builder),
       const Copyable().buildDeclarationsForClass(clazz, builder),
-    ]);
+    ].wait;
   }
 
   @override
@@ -49,11 +49,11 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
   ) {
-    return Future.wait([
+    return [
       const Equatable().buildDefinitionForClass(clazz, builder),
       const Stringable().buildDefinitionForClass(clazz, builder),
       const Copyable().buildDefinitionForClass(clazz, builder),      
-    ]);
+    ].wait;
   }
 }
 
