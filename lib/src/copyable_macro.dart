@@ -45,6 +45,12 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     MemberDeclarationBuilder builder,
   ) async {
     final fields = await builder.fieldsOf(clazz);
+    var superclass = await clazz.superclassTypeFromDeclaration(builder);
+
+    while(superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await superclass.superclassTypeFromDeclaration(builder);
+    }
 
     // Ensure all class fields have a type.
     if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
@@ -88,6 +94,13 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final className = clazz.identifier.name;
 
     final fields = await builder.fieldsOf(clazz);
+    var superclass = await clazz.superclassTypeFromDefinition(builder);
+
+    while(superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await superclass.superclassTypeFromDefinition(builder);
+    }
+
     final docComments = CommentCode.fromString('/// Create a copy of [$className] and replace zero or more fields.');
 
     if (fields.isEmpty) {
