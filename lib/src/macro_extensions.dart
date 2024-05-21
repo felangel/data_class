@@ -102,6 +102,15 @@ extension ClassDeclarationX on ClassDeclaration {
         : null;
     return superclassType is ClassDeclaration ? superclassType : null;
   }
+
+  Future<ClassDeclaration?> superclassType2(
+    TypeDefinitionBuilder builder,
+  ) async {
+    final superclassType = superclass != null
+        ? await builder.typeDeclarationOf(superclass!.identifier)
+        : null;
+    return superclassType is ClassDeclaration ? superclassType : null;
+  }
 }
 
 extension TypeDefinitionBuilderX on TypeDefinitionBuilder {

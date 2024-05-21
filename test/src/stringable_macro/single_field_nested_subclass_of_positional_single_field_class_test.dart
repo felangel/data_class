@@ -33,7 +33,7 @@ void main() {
           nestedSubField: 'nestedSubField',
         ).toString(),
         equals(
-          'NestedSubClass(baseField: baseField, subField: subField, nestedSubField: nestedSubField)',
+          'NestedSubClass(nestedSubField: nestedSubField, subField: subField, baseField: baseField)',
         ),
       );
     });

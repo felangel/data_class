@@ -60,6 +60,14 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
     final fields = await builder.fieldsOf(clazz);
+    ClassDeclaration? superclass = await getSuperclass(clazz, builder);
+
+    while (superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await getSuperclass(superclass, builder);
+    }
+
+
     final toStringFields = fields.map(
       (f) => f.type.isNullable 
           ? "\${${f.identifier.name} == null ? '' : '${f.identifier.name}: \${${f.identifier.name}.toString()}'}" 
@@ -79,5 +87,15 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       ),
     );
   }
+}
+
+Future<ClassDeclaration?> getSuperclass(
+  ClassDeclaration clazz,
+  TypeDefinitionBuilder builder,
+) async {
+  final superclassType = clazz.superclass != null
+      ? await builder.typeDeclarationOf(clazz.superclass!.identifier)
+      : null;
+  return superclassType is ClassDeclaration ? superclassType : null;
 }
 
