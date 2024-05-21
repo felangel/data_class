@@ -42,7 +42,7 @@ void main() {
       );
       expect(
         NullableStringFieldClass(value: null).toString(),
-        equals('NullableStringFieldClass(value: null)'),
+        equals('NullableStringFieldClass()'),
       );
     });
   });

@@ -106,7 +106,7 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
         className,
         '(',
         for (final field in fields)
-          ...[field.identifier.name, ': ', field.identifier.name, '!= null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
+          ...[field.identifier.name, ': ', field.identifier.name, ' != null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
         ');'
       ],
     );

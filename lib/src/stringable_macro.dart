@@ -59,9 +59,11 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (toString == null) return;
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = fieldDeclarations.map(
-      (f) => '${f.identifier.name}: \${${f.identifier.name}.toString()}',
+    final fields = await builder.fieldsOf(clazz);
+    final toStringFields = fields.map(
+      (f) => f.type.isNullable 
+          ? "\${${f.identifier.name} == null ? '' : '${f.identifier.name}: \${${f.identifier.name}.toString()}'}" 
+          : "${f.identifier.name}: \${${f.identifier.name}.toString()}",
     );
         
     return toStringMethod.augment(
@@ -70,7 +72,7 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
           '=> "',
           clazzName,
           '(',
-          fields.join(', '),
+          toStringFields.join(', '),
           ')',
           '";',
         ],
