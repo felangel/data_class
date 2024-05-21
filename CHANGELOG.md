@@ -1,3 +1,9 @@
+## 0.0.0-dev.8
+
+- feat: `@Data` can be applied to subclasses
+- feat: `@Stringable()` (`toString`) excludes `null` fields
+- tests: comprehensive unit tests
+
 ## 0.0.0-dev.7
 
 - feat: add `@Constructable` macro (`const` constructor)
