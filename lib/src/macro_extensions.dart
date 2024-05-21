@@ -94,20 +94,23 @@ extension ClassDeclarationX on ClassDeclaration {
     return defaultConstructor;
   }
 
-  Future<ClassDeclaration?> superclassType(
-    MemberDeclarationBuilder builder,
-  ) async {
-    final superclassType = superclass != null
-        ? await builder.typeDeclarationOf(superclass!.identifier)
-        : null;
-    return superclassType is ClassDeclaration ? superclassType : null;
+  Future<ClassDeclaration?> superclassTypeFromDeclaration(
+    DeclarationBuilder builder,
+  ) {
+    return _superclassType(builder.typeDeclarationOf);
   }
 
-  Future<ClassDeclaration?> superclassType2(
-    TypeDefinitionBuilder builder,
+  Future<ClassDeclaration?> superclassTypeFromDefinition(
+    DefinitionBuilder builder,
+  ) {
+    return _superclassType(builder.typeDeclarationOf);    
+  }
+
+  Future<ClassDeclaration?> _superclassType(
+    Future<TypeDeclaration> Function(Identifier) typeDeclarationOf,
   ) async {
     final superclassType = superclass != null
-        ? await builder.typeDeclarationOf(superclass!.identifier)
+        ? await typeDeclarationOf(superclass!.identifier)
         : null;
     return superclassType is ClassDeclaration ? superclassType : null;
   }
@@ -133,7 +136,7 @@ extension FormalParameterDeclarationX on FormalParameterDeclaration {
 
     if (field != null) return field.type;
 
-    final superclass = await clazz.superclassType(builder);
+    final superclass = await clazz.superclassTypeFromDeclaration(builder);
     if (superclass != null) return resolveType(builder, superclass);
 
     builder.report(

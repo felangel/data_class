@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
 /// {@template stringable}
@@ -60,13 +61,12 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
     final fields = await builder.fieldsOf(clazz);
-    ClassDeclaration? superclass = await getSuperclass(clazz, builder);
+    var superclass = await clazz.superclassTypeFromDefinition(builder);
 
     while (superclass != null) {
       fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await getSuperclass(superclass, builder);
+      superclass = await superclass.superclassTypeFromDefinition(builder);
     }
-
 
     final toStringFields = fields.map(
       (f) => f.type.isNullable 
@@ -88,14 +88,3 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
   }
 }
-
-Future<ClassDeclaration?> getSuperclass(
-  ClassDeclaration clazz,
-  TypeDefinitionBuilder builder,
-) async {
-  final superclassType = clazz.superclass != null
-      ? await builder.typeDeclarationOf(clazz.superclass!.identifier)
-      : null;
-  return superclassType is ClassDeclaration ? superclassType : null;
-}
-

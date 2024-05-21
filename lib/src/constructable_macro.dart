@@ -39,7 +39,7 @@ macro class Constructable implements ClassDeclarationsMacro {
 
     ConstructorParams superclassConstructorParams = (positional: [], named: []);
     
-    final superclass = await clazz.superclassType(builder);
+    final superclass = await clazz.superclassTypeFromDeclaration(builder);
     if (superclass != null) {
       final defaultSuperConstructor = await superclass.defaultConstructor(builder);
       if (defaultSuperConstructor == null) {
