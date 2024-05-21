@@ -7,14 +7,14 @@ abstract class BaseClass {
 }
 
 @Constructable()
-class EmptySubclass extends BaseClass {}
+class EmptySubClass extends BaseClass {}
 
 void main() {
-  group(EmptySubclass, () {
+  group(EmptySubClass, () {
     test('has a const constructor does not require param', () {
-      const instance = EmptySubclass(field: 'field');
+      const instance = EmptySubClass(field: 'field');
       expect(instance.field, equals('field'));
-      expect(instance, isA<EmptySubclass>());
+      expect(instance, isA<EmptySubClass>());
       expect(instance, isA<BaseClass>());
     });
   });

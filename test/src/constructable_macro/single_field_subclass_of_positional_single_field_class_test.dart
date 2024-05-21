@@ -7,20 +7,20 @@ abstract class BaseClass {
 }
 
 @Constructable()
-class SingleFieldSubclass extends BaseClass {
+class SingleFieldSubClass extends BaseClass {
   final String field;
 }
 
 void main() {
-  group(SingleFieldSubclass, () {
+  group(SingleFieldSubClass, () {
     test('has a const constructor and has required param for all fields', () {
-      const instance = SingleFieldSubclass(
+      const instance = SingleFieldSubClass(
         baseField: 'baseField',
         field: 'field',
       );
       expect(instance.baseField, equals('baseField'));
       expect(instance.field, equals('field'));
-      expect(instance, isA<SingleFieldSubclass>());
+      expect(instance, isA<SingleFieldSubClass>());
       expect(instance, isA<BaseClass>());
     });
   });
