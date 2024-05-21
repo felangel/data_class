@@ -52,7 +52,7 @@ extension TypeAnnotationX on TypeAnnotation {
   }
 }
 
-extension TypeDeclarationX on TypeDeclaration {
+extension ClassDeclarationX on ClassDeclaration {
   Future<ConstructorParams> constructorParams(
     ConstructorDeclaration constructor,
     MemberDeclarationBuilder builder,
@@ -93,16 +93,14 @@ extension TypeDeclarationX on TypeDeclaration {
     );
     return defaultConstructor;
   }
-}
 
-extension ClassDeclarationX on ClassDeclaration {
-  Future<TypeDeclaration?> superclassType(
+  Future<ClassDeclaration?> superclassType(
     MemberDeclarationBuilder builder,
   ) async {
     final superclassType = superclass != null
         ? await builder.typeDeclarationOf(superclass!.identifier)
         : null;
-    return superclassType;
+    return superclassType is ClassDeclaration ? superclassType : null;
   }
 }
 
@@ -116,26 +114,31 @@ extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
 extension FormalParameterDeclarationX on FormalParameterDeclaration {
   Future<TypeAnnotation?> resolveType(
     MemberDeclarationBuilder builder,
-    TypeDeclaration clazz,
+    ClassDeclaration clazz,
   ) async {
     if (type is NamedTypeAnnotation) return type;
     final fieldDeclarations = await builder.fieldsOf(clazz);
     final field = fieldDeclarations.firstWhereOrNull(
       (f) => f.identifier.name == name,
     );
-    if (field == null) {
-      builder.report(
-        Diagnostic(
-          DiagnosticMessage(
-            'Only fields with explicit types are allowed on data classes, please add a type.',
-            target: this.asDiagnosticTarget,
-          ),
-          Severity.error,
+
+    if (field != null) return field.type;
+
+    final superclass = await clazz.superclassType(builder);
+    if (superclass != null) return resolveType(builder, superclass);
+
+    builder.report(
+      Diagnostic(
+        DiagnosticMessage(
+          '''
+Only fields with explicit types are allowed on data classes.
+Please add a type to field "${name}" on class "${clazz.identifier.name}".''',
+          target: this.asDiagnosticTarget,
         ),
-      );
-      return null;
-    }
-    return field.type;
+        Severity.error,
+      ),
+    );
+    return null;
   }
 }
 
