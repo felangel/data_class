@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
 /// {@template stringable}
@@ -59,9 +60,18 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (toString == null) return;
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = fieldDeclarations.map(
-      (f) => '${f.identifier.name}: \${${f.identifier.name}.toString()}',
+    final fields = await builder.fieldsOf(clazz);
+    var superclass = await clazz.superclassTypeFromDefinition(builder);
+
+    while (superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await superclass.superclassTypeFromDefinition(builder);
+    }
+
+    final toStringFields = fields.map(
+      (f) => f.type.isNullable 
+          ? "\${${f.identifier.name} == null ? '' : '${f.identifier.name}: \${${f.identifier.name}.toString()}'}" 
+          : "${f.identifier.name}: \${${f.identifier.name}.toString()}",
     );
         
     return toStringMethod.augment(
@@ -70,7 +80,7 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
           '=> "',
           clazzName,
           '(',
-          fields.join(', '),
+          toStringFields.join(', '),
           ')',
           '";',
         ],
@@ -78,4 +88,3 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
   }
 }
-

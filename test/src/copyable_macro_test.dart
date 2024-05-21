@@ -1,57 +1,45 @@
-import 'package:data_class_macro/data_class_macro.dart';
-import 'package:test/test.dart';
-
-@Copyable()
-class EmptyClass {
-  const EmptyClass();
-}
-
-@Copyable()
-class StringFieldClass {
-  const StringFieldClass({required this.value});
-  final String value;
-}
-
-@Copyable()
-class NullableStringFieldClass {
-  const NullableStringFieldClass({this.value});
-  final String? value;
-}
+import 'copyable_macro/empty_class_test.dart' as empty_class_test;
+import 'copyable_macro/empty_nested_subclass_test.dart'
+    as empty_nested_subclass_test;
+import 'copyable_macro/empty_subclass_of_named_multi_field_class_test.dart'
+    as empty_subclass_of_named_multi_field_class_test;
+import 'copyable_macro/empty_subclass_of_named_single_field_class_test.dart'
+    as empty_subclass_of_named_single_field_class_test;
+import 'copyable_macro/empty_subclass_of_nullable_named_single_field_class_test.dart'
+    as empty_subclass_of_nullable_named_single_field_class_test;
+import 'copyable_macro/empty_subclass_of_nullable_optional_positional_single_field_class_test.dart'
+    as empty_subclass_of_nullable_optional_positional_single_field_class_test;
+import 'copyable_macro/empty_subclass_of_nullable_positional_single_field_class_test.dart'
+    as empty_subclass_of_nullable_positional_single_field_class_test;
+import 'copyable_macro/empty_subclass_of_optional_positional_single_field_class_test.dart'
+    as empty_subclass_of_optional_positional_single_field_class_test;
+import 'copyable_macro/empty_subclass_of_positional_multi_field_class_test.dart'
+    as empty_subclass_of_positional_multi_field_class_test;
+import 'copyable_macro/empty_subclass_of_positional_single_field_class_test.dart'
+    as empty_subclass_of_positional_single_field_class_test;
+import 'copyable_macro/empty_subclass_test.dart' as empty_subclass_test;
+import 'copyable_macro/nullable_single_field_class_test.dart'
+    as nullable_single_field_class_test;
+import 'copyable_macro/single_field_class_test.dart' as single_field_class_test;
+import 'copyable_macro/single_field_nested_subclass_of_positional_single_field_class_test.dart'
+    as single_field_nested_subclass_of_positional_single_field_class_test;
+import 'copyable_macro/single_field_subclass_of_positional_single_field_class_test.dart'
+    as single_field_subclass_of_positional_single_field_class_test;
 
 void main() {
-  group(EmptyClass, () {
-    test('copyWith', () {
-      expect(const EmptyClass().copyWith(), isA<EmptyClass>());
-    });
-  });
-
-  group(StringFieldClass, () {
-    test('copyWith', () {
-      const instance = const StringFieldClass(value: 'hello');
-      expect(instance.copyWith().value, equals('hello'));
-      expect(
-        instance.copyWith(value: () => 'bye').value,
-        equals('bye'),
-      );
-    });
-  });
-
-  group(NullableStringFieldClass, () {
-    test('copyWith', () {
-      final nonNullInstance = const NullableStringFieldClass(value: 'hello');
-      final nullInstance = const NullableStringFieldClass(value: null);
-      expect(nullInstance.copyWith().value, isNull);
-      expect(nonNullInstance.copyWith().value, equals('hello'));
-      expect(nullInstance.copyWith(value: null).value, isNull);
-      expect(nonNullInstance.copyWith(value: null).value, equals('hello'));
-      expect(
-        nullInstance.copyWith(value: () => 'hello').value,
-        equals('hello'),
-      );
-      expect(
-        nonNullInstance.copyWith(value: () => null).value,
-        isNull,
-      );
-    });
-  });
+  empty_class_test.main();
+  empty_nested_subclass_test.main();
+  empty_subclass_of_named_multi_field_class_test.main();
+  empty_subclass_of_named_single_field_class_test.main();
+  empty_subclass_of_nullable_named_single_field_class_test.main();
+  empty_subclass_of_nullable_optional_positional_single_field_class_test.main();
+  empty_subclass_of_nullable_positional_single_field_class_test.main();
+  empty_subclass_of_optional_positional_single_field_class_test.main();
+  empty_subclass_of_positional_multi_field_class_test.main();
+  empty_subclass_of_positional_single_field_class_test.main();
+  empty_subclass_test.main();
+  nullable_single_field_class_test.main();
+  single_field_class_test.main();
+  single_field_nested_subclass_of_positional_single_field_class_test.main();
+  single_field_subclass_of_positional_single_field_class_test.main();
 }

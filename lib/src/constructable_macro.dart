@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
@@ -33,40 +32,75 @@ macro class Constructable implements ClassDeclarationsMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    final constructors = await builder.constructorsOf(clazz);
-    if (constructors.any((c) => c.identifier.name == '')) {
+    final defaultClassConstructor = await clazz.defaultConstructor(builder);
+    if (defaultClassConstructor != null) {
       throw ArgumentError('A default constructor already exists.');
     }
 
-    final fieldDeclarations = await builder.fieldsOf(clazz);
-    final fields = await Future.wait(
-      fieldDeclarations.map(
-        (f) async => (
-          identifier: f.identifier,
-          type: checkNamedType(f.type, builder),
-        ),
-      ),
-    );
+    ConstructorParams superclassConstructorParams = (positional: [], named: []);
+    
+    final superclass = await clazz.superclassTypeFromDeclaration(builder);
+    if (superclass != null) {
+      final defaultSuperConstructor = await superclass.defaultConstructor(builder);
+      if (defaultSuperConstructor == null) {
+        builder.report(
+          Diagnostic(
+            DiagnosticMessage(
+              '${superclass.identifier.name} must have a default constructor',
+              target: superclass.asDiagnosticTarget,
+            ),
+            Severity.error,
+          ),
+        );
+        return;
+      }
 
-    final missingType = fields.firstWhereOrNull((f) => f.type == null);
-    if (missingType != null) return null;
+      superclassConstructorParams = await superclass.constructorParams(defaultSuperConstructor, builder,);
 
-    if (fields.isEmpty) {
+      // TODO(felangel): Ensure the super constructor is const
+      // https://github.com/dart-lang/sdk/issues/55768      
+    }
+
+    final superclassParams = [
+      ...superclassConstructorParams.positional,
+      ...superclassConstructorParams.named,
+    ];
+    
+    // Ensure all super class constructor params have a type.
+    if (superclassParams.any((p) => p.type == null)) return null;
+
+    final fields = await builder.fieldsOf(clazz);
+    
+    // Ensure all class fields have a type.
+    if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
+
+    if (fields.isEmpty && superclassParams.isEmpty) {
       return builder.declareInType(
         DeclarationCode.fromString('const ${clazz.identifier.name}();'),
       );
     }
 
-    return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'const ${clazz.identifier.name}({',
-          for (final field in fields)
-            ...[if (!field.type!.isNullable) 'required', ' ', 'this.', field.identifier.name, ','],
-          '});',
-        ],
-      ),
+    final declaration = DeclarationCode.fromParts(
+      [
+        'const ${clazz.identifier.name}({',
+        for (final param in superclassParams) 
+          ...[if (param.isRequired) 'required ', param.type!.code, ' ', param.name, ','],
+        for (final field in fields) 
+          ...[if (!field.type.isNullable) 'required ', 'this.', field.identifier.name, ','],
+        '})',
+        if (superclass != null)
+          ...[
+            ' : super(',
+            for (final param in superclassConstructorParams.positional)
+              ...[param.name, ','],
+            for (final param in superclassConstructorParams.named)
+              ...[param.name, ': ', param.name, ','],
+            ')',
+          ],
+        ';',
+      ],
     );
+
+    return builder.declareInType(declaration);
   }
 }
-

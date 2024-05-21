@@ -73,16 +73,20 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (equality == null) return;
     
-    final (equalsMethod, deepCollectionEquality, fieldDeclarations) = await (
+    final (equalsMethod, deepCollectionEquality, fields, identical) = await (
       builder.buildMethod(equality.identifier),
       collectionDeepCollectionEquality(builder),
       builder.fieldsOf(clazz),
+      dartCoreIdentical(builder),
     ).wait;
     
-    final fields = fieldDeclarations.map(
-      (f) => f.identifier.name,
-    );
-    final identical = await dartCoreIdentical(builder);
+
+    var superclass = await clazz.superclassTypeFromDefinition(builder);
+
+    while(superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await superclass.superclassTypeFromDefinition(builder);
+    }
     
     if (fields.isEmpty) {
       return equalsMethod.augment(
@@ -97,8 +101,11 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
         ),      
       );
     }
-    
-    final lastField = fields.last;
+
+    // TODO(felangel): instead of using fields and converting to a set
+    // this should be using the constructor params.
+    final fieldNames = fields.map((f) => f.identifier.name).toSet();
+    final lastField = fieldNames.last;
     return equalsMethod.augment(
       FunctionBodyCode.fromParts(
         [
@@ -106,8 +113,8 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
           'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',
           'return other is ${clazz.identifier.name} && ',
           'other.runtimeType == runtimeType && ',          
-          for (final field in fields)
-            ...[NamedTypeAnnotationCode(name: deepCollectionEquality), '.equals(${field}, other.$field)', if (field != lastField) '&& '],
+          for (final field in fieldNames)
+            ...[NamedTypeAnnotationCode(name: deepCollectionEquality), '.equals(${field}, other.$field)', if (field != lastField) ' && '],
           ';',
           '}',          
         ],
@@ -125,14 +132,20 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (hashCode == null) return;
 
-    final (hashCodeMethod, object, fieldDeclarations) = await (
+    final (hashCodeMethod, object, fields) = await (
       builder.buildMethod(hashCode.identifier),
       dartCoreObject(builder),
       builder.fieldsOf(clazz),
-    ).wait;    
-    final fields = fieldDeclarations.map(
-      (f) => f.identifier.name,
-    );
+    ).wait;
+
+    var superclass = await clazz.superclassTypeFromDefinition(builder);
+
+    while(superclass != null) {
+      fields.addAll(await builder.fieldsOf(superclass));
+      superclass = await superclass.superclassTypeFromDefinition(builder);
+    }
+    
+    final fieldNames = fields.map((f) => f.identifier.name);
 
     return hashCodeMethod.augment(
       FunctionBodyCode.fromParts(
@@ -140,7 +153,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
           '=> ',
           NamedTypeAnnotationCode(name: object),
           '.hashAll([',
-          fields.join(', '),
+          fieldNames.join(', '),
           ']);',
         ],
       ),

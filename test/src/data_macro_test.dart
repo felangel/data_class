@@ -148,7 +148,7 @@ void main() {
       );
       expect(
         nullInstance.toString(),
-        equals('NullableStringFieldClass(value: null)'),
+        equals('NullableStringFieldClass()'),
       );
     });
   });
