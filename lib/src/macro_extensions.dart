@@ -205,29 +205,8 @@ extension TypeAnnotationX on TypeAnnotation {
   }
 }
 
-Future<Identifier> dartCoreIdentical(TypeDefinitionBuilder builder) {
-  return builder._getIdentifier(_dartCore, 'identical');
-}
-
-Future<Identifier> dartCoreObject(TypeDefinitionBuilder builder) {
-  return builder._getIdentifier(_dartCore, 'Object');
-}
-
-Future<Identifier> collectionDeepCollectionEquality(
-  TypeDefinitionBuilder builder,
-) {
-  return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
-}
-
-extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
-  Future<Identifier> _getIdentifier(Uri library, String name) {
-    // ignore: deprecated_member_use
-    return resolveIdentifier(library, name);
-  }
-}
-
 // Used libraries
-final _dartCore = Uri.parse('dart:core');
-final _dataClassMacro = Uri.parse(
+final dartCore = Uri.parse('dart:core');
+final dataClassMacro = Uri.parse(
   'package:data_class_macro/data_class_macro.dart',
 );

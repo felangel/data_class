@@ -49,8 +49,22 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
+    final (object, boolean) = await (
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dartCore, 'Object'),
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dartCore, 'bool'),      
+    ).wait;
     return builder.declareInType(
-      DeclarationCode.fromString('external bool operator==(Object other);'),
+      DeclarationCode.fromParts(
+        [
+          'external ',
+          NamedTypeAnnotationCode(name: boolean),
+          ' operator==(',
+          NamedTypeAnnotationCode(name: object),
+          ' other);',
+        ],
+      ),
     );
   }
 
@@ -58,8 +72,16 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
+    // ignore: deprecated_member_use
+    final integer = await builder.resolveIdentifier(dartCore, 'int');
     return builder.declareInType(
-      DeclarationCode.fromString('external int get hashCode;'),
+      DeclarationCode.fromParts(
+        [
+          'external ',
+          NamedTypeAnnotationCode(name: integer),
+          ' get hashCode;',
+        ],
+      ),
     );
   }
 
@@ -75,9 +97,11 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     
     final (equalsMethod, deepCollectionEquality, fields, identical) = await (
       builder.buildMethod(equality.identifier),
-      collectionDeepCollectionEquality(builder),
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dataClassMacro, 'deepCollectionEquality'),
       builder.fieldsOf(clazz),
-      dartCoreIdentical(builder),
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dartCore, 'identical'),
     ).wait;
     
     var superclass = await builder.superclassOf(clazz);
@@ -132,7 +156,8 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
 
     final (hashCodeMethod, object, fields) = await (
       builder.buildMethod(hashCode.identifier),
-      dartCoreObject(builder),
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dartCore, 'Object'),
       builder.fieldsOf(clazz),
     ).wait;
 

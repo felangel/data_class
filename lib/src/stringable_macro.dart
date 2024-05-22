@@ -44,8 +44,16 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
+    // ignore: deprecated_member_use
+    final string = await builder.resolveIdentifier(dartCore, 'String');
     return builder.declareInType(
-      DeclarationCode.fromString('external String toString();'),
+      DeclarationCode.fromParts(
+        [
+          'external ',
+          NamedTypeAnnotationCode(name: string),
+          ' toString();',
+        ],
+      ),
     );
   }
 
@@ -67,13 +75,17 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       fields.addAll(await builder.fieldsOf(superclass));
       superclass = await builder.superclassOf(superclass);
     }
+    // TODO(felangel): figure out why superclass fields result in duplicates
+    // instead of de-duplicating manually here.
+    final fieldNames = fields.map((f) => f.identifier.name).toSet();
+    final toStringFields = fieldNames.map((name) {
+      final field = fields.firstWhere((f) => f.identifier.name == name);
+      return field.type.isNullable 
+        ? "\${${field.identifier.name} == null ? '' : '${field.identifier.name}: \${${field.identifier.name}.toString()}'}" 
+        : "${field.identifier.name}: \${${field.identifier.name}.toString()}";
+    });
+    
 
-    final toStringFields = fields.map(
-      (f) => f.type.isNullable 
-          ? "\${${f.identifier.name} == null ? '' : '${f.identifier.name}: \${${f.identifier.name}.toString()}'}" 
-          : "${f.identifier.name}: \${${f.identifier.name}.toString()}",
-    );
-        
     return toStringMethod.augment(
       FunctionBodyCode.fromParts(
         [
