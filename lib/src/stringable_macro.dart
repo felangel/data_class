@@ -78,15 +78,13 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     // TODO(felangel): figure out why superclass fields result in duplicates
     // instead of de-duplicating manually here.
     final fieldNames = fields.map((f) => f.identifier.name).toSet();
-    final toStringFields = <String>[];
-    for (final name in fieldNames) {
+    final toStringFields = fieldNames.map((name) {
       final field = fields.firstWhere((f) => f.identifier.name == name);
-      toStringFields.add(
-        field.type.isNullable 
-          ? "\${${field.identifier.name} == null ? '' : '${field.identifier.name}: \${${field.identifier.name}.toString()}'}" 
-          : "${field.identifier.name}: \${${field.identifier.name}.toString()}",
-      );
-    }
+      return field.type.isNullable 
+        ? "\${${field.identifier.name} == null ? '' : '${field.identifier.name}: \${${field.identifier.name}.toString()}'}" 
+        : "${field.identifier.name}: \${${field.identifier.name}.toString()}";
+    });
+    
 
     return toStringMethod.augment(
       FunctionBodyCode.fromParts(
