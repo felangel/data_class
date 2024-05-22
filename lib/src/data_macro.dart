@@ -35,21 +35,25 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
   Future<void> buildDeclarationsForClass(
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
-  ) async {
-    await const Constructable().buildDeclarationsForClass(clazz, builder);
-    await const Equatable().buildDeclarationsForClass(clazz, builder);
-    await const Stringable().buildDeclarationsForClass(clazz, builder);
-    await const Copyable().buildDeclarationsForClass(clazz, builder);
+  ) {
+    return [
+      const Constructable().buildDeclarationsForClass(clazz, builder),
+      const Equatable().buildDeclarationsForClass(clazz, builder),
+      const Stringable().buildDeclarationsForClass(clazz, builder),
+      const Copyable().buildDeclarationsForClass(clazz, builder),
+    ].wait;
   }
 
   @override
   Future<void> buildDefinitionForClass(
     ClassDeclaration clazz,
     TypeDefinitionBuilder builder,
-  ) async {
-    await const Equatable().buildDefinitionForClass(clazz, builder);
-    await const Stringable().buildDefinitionForClass(clazz, builder);
-    await const Copyable().buildDefinitionForClass(clazz, builder);
+  ) {
+    return [
+      const Equatable().buildDefinitionForClass(clazz, builder),
+      const Stringable().buildDefinitionForClass(clazz, builder),
+      const Copyable().buildDefinitionForClass(clazz, builder),
+    ].wait;
   }
 }
 
