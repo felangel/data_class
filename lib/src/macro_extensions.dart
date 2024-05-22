@@ -8,20 +8,6 @@ typedef ConstructorParams = ({
   List<FieldMetadata> named,
 });
 
-Future<Identifier> dartCoreIdentical(TypeDefinitionBuilder builder) {
-  return builder._getIdentifier(_dartCore, 'identical');
-}
-
-Future<Identifier> dartCoreObject(TypeDefinitionBuilder builder) {
-  return builder._getIdentifier(_dartCore, 'Object');
-}
-
-Future<Identifier> collectionDeepCollectionEquality(
-  TypeDefinitionBuilder builder,
-) {
-  return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
-}
-
 extension TypeAnnotationX on TypeAnnotation {
   T cast<T extends TypeAnnotation>() => this as T;
 
@@ -52,17 +38,65 @@ extension TypeAnnotationX on TypeAnnotation {
   }
 }
 
-extension ClassDeclarationX on ClassDeclaration {
-  Future<ConstructorParams> constructorParams(
+extension DefinitionBuilderX on DefinitionBuilder {
+  Future<TypeAnnotation?> resolveType(
+    FormalParameterDeclaration declaration,
+    ClassDeclaration clazz,
+  ) async {
+    final type = declaration.type;
+    final name = declaration.name;
+    if (type is NamedTypeAnnotation) return type;
+    final fieldDeclarations = await fieldsOf(clazz);
+    final field = fieldDeclarations.firstWhereOrNull(
+      (f) => f.identifier.name == name,
+    );
+
+    if (field != null) return field.type;
+
+    final superclass = await superclassOf(clazz);
+    if (superclass != null) return resolveType(declaration, superclass);
+
+    report(
+      Diagnostic(
+        DiagnosticMessage(
+          '''
+Only fields with explicit types are allowed on data classes.
+Please add a type to field "${name}" on class "${clazz.identifier.name}".''',
+          target: declaration.asDiagnosticTarget,
+        ),
+        Severity.error,
+      ),
+    );
+    return null;
+  }
+
+  Future<ConstructorDeclaration?> defaultConstructorOf(
+    TypeDeclaration clazz,
+  ) async {
+    final constructors = await constructorsOf(clazz);
+    final defaultConstructor = constructors.firstWhereOrNull(
+      (c) => c.identifier.name == '',
+    );
+    return defaultConstructor;
+  }
+
+  Future<ClassDeclaration?> superclassOf(ClassDeclaration clazz) async {
+    final superclassType = clazz.superclass != null
+        ? await typeDeclarationOf(clazz.superclass!.identifier)
+        : null;
+    return superclassType is ClassDeclaration ? superclassType : null;
+  }
+
+  Future<ConstructorParams> constructorParamsOf(
     ConstructorDeclaration constructor,
-    MemberDeclarationBuilder builder,
+    ClassDeclaration clazz,
   ) async {
     final positional = <FieldMetadata>[];
     final named = <FieldMetadata>[];
 
     // TODO(felangel): refactor this to run in parallel.
     for (final positionalParameter in constructor.positionalParameters) {
-      final type = await positionalParameter.resolveType(builder, this);
+      final type = await resolveType(positionalParameter, clazz);
       positional.add((
         // TODO(felangel): this workaround until we are able to detect default values.
         isRequired:
@@ -73,7 +107,7 @@ extension ClassDeclarationX on ClassDeclaration {
     }
 
     for (final namedParameter in constructor.namedParameters) {
-      final type = await namedParameter.resolveType(builder, this);
+      final type = await resolveType(namedParameter, clazz);
       named.add((
         isRequired: namedParameter.isRequired,
         name: namedParameter.identifier.name,
@@ -83,74 +117,86 @@ extension ClassDeclarationX on ClassDeclaration {
 
     return (positional: positional, named: named);
   }
-
-  Future<ConstructorDeclaration?> defaultConstructor(
-    MemberDeclarationBuilder builder,
-  ) async {
-    final constructors = await builder.constructorsOf(this);
-    final defaultConstructor = constructors.firstWhereOrNull(
-      (c) => c.identifier.name == '',
-    );
-    return defaultConstructor;
-  }
-
-  Future<ClassDeclaration?> superclassTypeFromDeclaration(
-    DeclarationBuilder builder,
-  ) {
-    return _superclassType(builder.typeDeclarationOf);
-  }
-
-  Future<ClassDeclaration?> superclassTypeFromDefinition(
-    DefinitionBuilder builder,
-  ) {
-    return _superclassType(builder.typeDeclarationOf);    
-  }
-
-  Future<ClassDeclaration?> _superclassType(
-    Future<TypeDeclaration> Function(Identifier) typeDeclarationOf,
-  ) async {
-    final superclassType = superclass != null
-        ? await typeDeclarationOf(superclass!.identifier)
-        : null;
-    return superclassType is ClassDeclaration ? superclassType : null;
-  }
 }
 
-extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
-  Future<Identifier> _getIdentifier(Uri library, String name) {
-    // ignore: deprecated_member_use
-    return resolveIdentifier(library, name);
-  }
-}
-
-extension FormalParameterDeclarationX on FormalParameterDeclaration {
+extension DeclarationBuilderX on DeclarationBuilder {
   Future<TypeAnnotation?> resolveType(
-    MemberDeclarationBuilder builder,
+    FormalParameterDeclaration declaration,
     ClassDeclaration clazz,
   ) async {
+    final type = declaration.type;
+    final name = declaration.name;
     if (type is NamedTypeAnnotation) return type;
-    final fieldDeclarations = await builder.fieldsOf(clazz);
+    final fieldDeclarations = await fieldsOf(clazz);
     final field = fieldDeclarations.firstWhereOrNull(
       (f) => f.identifier.name == name,
     );
 
     if (field != null) return field.type;
 
-    final superclass = await clazz.superclassTypeFromDeclaration(builder);
-    if (superclass != null) return resolveType(builder, superclass);
+    final superclass = await superclassOf(clazz);
+    if (superclass != null) return resolveType(declaration, superclass);
 
-    builder.report(
+    report(
       Diagnostic(
         DiagnosticMessage(
           '''
 Only fields with explicit types are allowed on data classes.
 Please add a type to field "${name}" on class "${clazz.identifier.name}".''',
-          target: this.asDiagnosticTarget,
+          target: declaration.asDiagnosticTarget,
         ),
         Severity.error,
       ),
     );
     return null;
+  }
+
+  Future<ConstructorDeclaration?> defaultConstructorOf(
+    TypeDeclaration clazz,
+  ) async {
+    final constructors = await constructorsOf(clazz);
+    final defaultConstructor = constructors.firstWhereOrNull(
+      (c) => c.identifier.name == '',
+    );
+    return defaultConstructor;
+  }
+
+  Future<ClassDeclaration?> superclassOf(ClassDeclaration clazz) async {
+    final superclassType = clazz.superclass != null
+        ? await typeDeclarationOf(clazz.superclass!.identifier)
+        : null;
+    return superclassType is ClassDeclaration ? superclassType : null;
+  }
+
+  Future<ConstructorParams> constructorParamsOf(
+    ConstructorDeclaration constructor,
+    ClassDeclaration clazz,
+  ) async {
+    final positional = <FieldMetadata>[];
+    final named = <FieldMetadata>[];
+
+    // TODO(felangel): refactor this to run in parallel.
+    for (final positionalParameter in constructor.positionalParameters) {
+      final type = await resolveType(positionalParameter, clazz);
+      positional.add((
+        // TODO(felangel): this workaround until we are able to detect default values.
+        isRequired:
+            type?.isNullable == false ? true : positionalParameter.isRequired,
+        name: positionalParameter.identifier.name,
+        type: type,
+      ));
+    }
+
+    for (final namedParameter in constructor.namedParameters) {
+      final type = await resolveType(namedParameter, clazz);
+      named.add((
+        isRequired: namedParameter.isRequired,
+        name: namedParameter.identifier.name,
+        type: type,
+      ));
+    }
+
+    return (positional: positional, named: named);
   }
 }
 
@@ -174,6 +220,27 @@ extension CodeX on Code {
           buffer.write(part);
       }
     }
+  }
+}
+
+Future<Identifier> dartCoreIdentical(TypeDefinitionBuilder builder) {
+  return builder._getIdentifier(_dartCore, 'identical');
+}
+
+Future<Identifier> dartCoreObject(TypeDefinitionBuilder builder) {
+  return builder._getIdentifier(_dartCore, 'Object');
+}
+
+Future<Identifier> collectionDeepCollectionEquality(
+  TypeDefinitionBuilder builder,
+) {
+  return builder._getIdentifier(_dataClassMacro, 'deepCollectionEquality');
+}
+
+extension TypeDefinitionBuilderX on TypeDefinitionBuilder {
+  Future<Identifier> _getIdentifier(Uri library, String name) {
+    // ignore: deprecated_member_use
+    return resolveIdentifier(library, name);
   }
 }
 

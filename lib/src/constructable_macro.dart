@@ -32,16 +32,15 @@ macro class Constructable implements ClassDeclarationsMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    final defaultClassConstructor = await clazz.defaultConstructor(builder);
+    final defaultClassConstructor = await builder.defaultConstructorOf(clazz);
     if (defaultClassConstructor != null) {
       throw ArgumentError('A default constructor already exists.');
     }
 
     ConstructorParams superclassConstructorParams = (positional: [], named: []);
-    
-    final superclass = await clazz.superclassTypeFromDeclaration(builder);
+    final superclass = await builder.superclassOf(clazz);
     if (superclass != null) {
-      final defaultSuperConstructor = await superclass.defaultConstructor(builder);
+      final defaultSuperConstructor = await builder.defaultConstructorOf(superclass);
       if (defaultSuperConstructor == null) {
         builder.report(
           Diagnostic(
@@ -55,7 +54,7 @@ macro class Constructable implements ClassDeclarationsMacro {
         return;
       }
 
-      superclassConstructorParams = await superclass.constructorParams(defaultSuperConstructor, builder,);
+      superclassConstructorParams = await builder.constructorParamsOf(defaultSuperConstructor, superclass);
 
       // TODO(felangel): Ensure the super constructor is const
       // https://github.com/dart-lang/sdk/issues/55768      

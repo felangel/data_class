@@ -80,12 +80,10 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       dartCoreIdentical(builder),
     ).wait;
     
-
-    var superclass = await clazz.superclassTypeFromDefinition(builder);
-
+    var superclass = await builder.superclassOf(clazz);
     while(superclass != null) {
       fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await superclass.superclassTypeFromDefinition(builder);
+      superclass = await builder.superclassOf(superclass);
     }
     
     if (fields.isEmpty) {
@@ -138,11 +136,10 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       builder.fieldsOf(clazz),
     ).wait;
 
-    var superclass = await clazz.superclassTypeFromDefinition(builder);
-
+    var superclass = await builder.superclassOf(clazz);
     while(superclass != null) {
       fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await superclass.superclassTypeFromDefinition(builder);
+      superclass = await builder.superclassOf(superclass);
     }
     
     final fieldNames = fields.map((f) => f.identifier.name);
