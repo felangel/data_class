@@ -63,7 +63,7 @@ macro class Constructable implements ClassDeclarationsMacro {
     final superclassParams = [
       ...superclassConstructorParams.positional,
       ...superclassConstructorParams.named,
-    ];
+    ].toSet();
     
     // Ensure all super class constructor params have a type.
     if (superclassParams.any((p) => p.type == null)) return null;
