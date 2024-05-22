@@ -61,11 +61,11 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
     final fields = await builder.fieldsOf(clazz);
-    var superclass = await clazz.superclassTypeFromDefinition(builder);
-
-    while (superclass != null) {
+    
+    var superclass = await builder.superclassOf(clazz);
+    while(superclass != null) {
       fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await superclass.superclassTypeFromDefinition(builder);
+      superclass = await builder.superclassOf(superclass);
     }
 
     final toStringFields = fields.map(

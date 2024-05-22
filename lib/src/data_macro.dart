@@ -52,7 +52,7 @@ macro class Data implements ClassDeclarationsMacro, ClassDefinitionMacro {
     return [
       const Equatable().buildDefinitionForClass(clazz, builder),
       const Stringable().buildDefinitionForClass(clazz, builder),
-      const Copyable().buildDefinitionForClass(clazz, builder),      
+      const Copyable().buildDefinitionForClass(clazz, builder),
     ].wait;
   }
 }
