@@ -1,3 +1,8 @@
+## 0.0.0-dev.9
+
+- fix: `@Data` inheritance compatibility
+- fix: `@Data` composability with other macros
+
 ## 0.0.0-dev.8
 
 - feat: `@Data` can be applied to subclasses
