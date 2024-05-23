@@ -14,13 +14,11 @@ class EmptySubClass extends BaseClass {
 
 void main() {
   group(EmptySubClass, () {
-    group(EmptySubClass, () {
-      test('toString is correct', () {
-        expect(
-          EmptySubClass('stringField', 42).toString(),
-          equals('EmptySubClass(stringField: stringField, intField: 42)'),
-        );
-      });
+    test('toString is correct', () {
+      expect(
+        EmptySubClass('stringField', 42).toString(),
+        equals('EmptySubClass(stringField: stringField, intField: 42)'),
+      );
     });
   });
 }

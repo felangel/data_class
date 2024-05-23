@@ -18,7 +18,9 @@ void main() {
   group(EmptyNestedSubClass, () {
     test('copyWith is correct', () {
       expect(
-          const EmptyNestedSubClass().copyWith(), isA<EmptyNestedSubClass>());
+        const EmptyNestedSubClass().copyWith(),
+        isA<EmptyNestedSubClass>(),
+      );
     });
   });
 }
