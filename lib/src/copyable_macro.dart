@@ -44,53 +44,17 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    final defaultConstructor = await builder.defaultConstructorOf(clazz);
-    if (defaultConstructor == null) {
-      final fields = await builder.fieldsOf(clazz);
-      var superclass = await builder.superclassOf(clazz);
-      while(superclass != null) {
-        fields.addAll(await builder.fieldsOf(superclass));
-        superclass = await builder.superclassOf(superclass);
-      }
-
-      // Ensure all class fields have a type.
-      if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
-      
-      if (fields.isEmpty) {
-        return builder.declareInType(
-          DeclarationCode.fromString(
-            'external ${clazz.identifier.name} copyWith();',
-          ),
-        );
-      }
-
-      final declaration = DeclarationCode.fromParts(
-        [
-          'external ${clazz.identifier.name} copyWith({',
-          for (final field in fields)
-            ...[
-              field.type.cast<NamedTypeAnnotation>().identifier,
-              if(field.type.cast<NamedTypeAnnotation>().isNullable) '?',
-              ' Function()? ', field.identifier.name,
-              ',',
-            ]
-          ,'});',
-        ],
-      );
-      
-      return builder.declareInType(declaration);
+    final methods = await builder.methodsOf(clazz);
+    if (methods.any((c) => c.identifier.name == 'copyWith')) {
+      throw ArgumentError('A copyWith method already exists.');
     }
     
-    final constructorParams = await builder.constructorParamsOf(defaultConstructor, clazz);
-     final params = [
-      ...constructorParams.positional,
-      ...constructorParams.named,
-    ].toSet();
+    final fields = await builder.allFieldsOf(clazz);
+
+    // Ensure all class fields have a type.
+    if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
     
-    // Ensure all constructor params have a type.
-    if (params.any((p) => p.type == null)) return null;
-    
-    if (params.isEmpty) {
+    if (fields.isEmpty) {
       return builder.declareInType(
         DeclarationCode.fromString(
           'external ${clazz.identifier.name} copyWith();',
@@ -101,11 +65,11 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final declaration = DeclarationCode.fromParts(
       [
         'external ${clazz.identifier.name} copyWith({',
-        for (final param in params)
+        for (final field in fields)
           ...[
-            param.type!.code.asNonNullable,
-            if(!param.isRequired) '?',
-            ' Function()? ', param.name,
+            field.type.cast<NamedTypeAnnotation>().identifier,
+            if(field.type.cast<NamedTypeAnnotation>().isNullable) '?',
+            ' Function()? ', field.identifier.name,
             ',',
           ]
         ,'});',
@@ -130,38 +94,16 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
 
     final defaultConstructor = await builder.defaultConstructorOf(clazz);
     if (defaultConstructor == null) {
-      final fields = await builder.fieldsOf(clazz);
-    
-      var superclass = await builder.superclassOf(clazz);
-      while(superclass != null) {
-        fields.addAll(await builder.fieldsOf(superclass));
-        superclass = await builder.superclassOf(superclass);
-      }
-      if (fields.isEmpty) {
-        return copyWithMethod.augment(
-          FunctionBodyCode.fromParts(['=> ', className, '();']),
-          docComments: docComments,
-        );
-      }
-
-      // Ensure all class fields have a type.
-      if (fields.any((f) => f.type.checkNamed(builder) == null)) return;
-      
-      final body = FunctionBodyCode.fromParts(
-        [
-          '=> ',
-          className,
-          '(',
-          for (final field in fields)
-            ...[field.identifier.name, ': ', field.identifier.name, ' != null ? ',field.identifier.name, '.call()', ' : this.',field.identifier.name, ','],
-          ');'
-        ],
+      builder.report(
+        Diagnostic(
+          DiagnosticMessage(
+            'Class "$className" must have a default constructor',
+            target: clazz.asDiagnosticTarget,
+          ),
+          Severity.error,
+        ),
       );
-
-      return copyWithMethod.augment(
-        body,
-        docComments: docComments,
-      );
+      return null;
     }
     
     final constructorParams = await builder.constructorParamsOf(defaultConstructor, clazz);
@@ -191,10 +133,7 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       ],
     );
 
-    return copyWithMethod.augment(
-      body,
-      docComments: docComments,
-    );
+    return copyWithMethod.augment(body, docComments: docComments);
   }
 }
 
