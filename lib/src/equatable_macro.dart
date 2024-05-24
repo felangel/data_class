@@ -118,9 +118,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       );
     }
 
-    // TODO(felangel): instead of using fields and converting to a set
-    // this should be using the constructor params.
-    final fieldNames = fields.map((f) => f.identifier.name).toSet();
+    final fieldNames = fields.map((f) => f.identifier.name);
     final lastField = fieldNames.last;
     return equalsMethod.augment(
       FunctionBodyCode.fromParts(
@@ -155,7 +153,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       builder.allFieldsOf(clazz),
     ).wait;
 
-    final fieldNames = fields.map((f) => f.identifier.name).toSet();
+    final fieldNames = fields.map((f) => f.identifier.name);
 
     return hashCodeMethod.augment(
       FunctionBodyCode.fromParts(

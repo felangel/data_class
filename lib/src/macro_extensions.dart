@@ -149,30 +149,31 @@ Future<ConstructorParams> _constructorParamsOf(
     ClassDeclaration clazz,
   ),
 ) async {
-  final positional = <FieldMetadata>[];
-  final named = <FieldMetadata>[];
-
-  // TODO(felangel): refactor this to run in parallel.
-  for (final positionalParameter in constructor.positionalParameters) {
-    final type = await resolveType(positionalParameter, clazz);
-    positional.add((
-      // TODO(felangel): this workaround until we are able to detect default values.
-      isRequired:
-          type?.isNullable == false ? true : positionalParameter.isRequired,
-      name: positionalParameter.identifier.name,
-      type: type,
-    ));
-  }
-
-  for (final namedParameter in constructor.namedParameters) {
-    final type = await resolveType(namedParameter, clazz);
-    named.add((
-      isRequired: namedParameter.isRequired,
-      name: namedParameter.identifier.name,
-      type: type,
-    ));
-  }
-
+  final (positional, named) = await (
+    Future.wait([
+      ...constructor.positionalParameters.map((p) {
+        return resolveType(p, clazz).then((type) {
+          return (
+            // TODO(felangel): this workaround until we are able to detect default values.
+            isRequired: type?.isNullable == false ? true : p.isRequired,
+            name: p.identifier.name,
+            type: type,
+          );
+        });
+      })
+    ]),
+    Future.wait([
+      ...constructor.namedParameters.map((p) {
+        return resolveType(p, clazz).then((type) {
+          return (
+            isRequired: p.isRequired,
+            name: p.identifier.name,
+            type: type,
+          );
+        });
+      })
+    ])
+  ).wait;
   return (positional: positional, named: named);
 }
 
