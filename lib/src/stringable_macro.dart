@@ -70,11 +70,7 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final clazzName = clazz.identifier.name;
     final fields = await builder.allFieldsOf(clazz);
     
-    // TODO(felangel): figure out why superclass fields result in duplicates
-    // instead of de-duplicating manually here.
-    final fieldNames = fields.map((f) => f.identifier.name).toSet();
-    final toStringFields = fieldNames.map((name) {
-      final field = fields.firstWhere((f) => f.identifier.name == name);
+    final toStringFields = fields.map((field) {
       return field.type.isNullable 
         ? "\${${field.identifier.name} == null ? '' : '${field.identifier.name}: \${${field.identifier.name}.toString()}'}" 
         : "${field.identifier.name}: \${${field.identifier.name}.toString()}";

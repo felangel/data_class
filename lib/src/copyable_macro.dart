@@ -48,7 +48,6 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (methods.any((c) => c.identifier.name == 'copyWith')) {
       throw ArgumentError('A copyWith method already exists.');
     }
-    
     final fields = await builder.allFieldsOf(clazz);
 
     // Ensure all class fields have a type.
@@ -110,7 +109,7 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     final params = [
       ...constructorParams.positional,
       ...constructorParams.named,
-    ].toSet();    
+    ];
 
     if (params.isEmpty) {
       return copyWithMethod.augment(
