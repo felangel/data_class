@@ -95,20 +95,14 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (equality == null) return;
     
-    final (equalsMethod, deepCollectionEquality, fields, identical) = await (
+    final (equalsMethod, deepEquals, fields, identical) = await (
       builder.buildMethod(equality.identifier),
       // ignore: deprecated_member_use
-      builder.resolveIdentifier(dataClassMacro, 'deepCollectionEquality'),
-      builder.fieldsOf(clazz),
+      builder.resolveIdentifier(dataClassMacro, 'deepEquals'),
+      builder.allFieldsOf(clazz),
       // ignore: deprecated_member_use
       builder.resolveIdentifier(dartCore, 'identical'),
     ).wait;
-    
-    var superclass = await builder.superclassOf(clazz);
-    while(superclass != null) {
-      fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await builder.superclassOf(superclass);
-    }
     
     if (fields.isEmpty) {
       return equalsMethod.augment(
@@ -136,7 +130,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
           'return other is ${clazz.identifier.name} && ',
           'other.runtimeType == runtimeType && ',          
           for (final field in fieldNames)
-            ...[NamedTypeAnnotationCode(name: deepCollectionEquality), '.equals(${field}, other.$field)', if (field != lastField) ' && '],
+            ...[NamedTypeAnnotationCode(name: deepEquals), '(${field}, other.$field)', if (field != lastField) ' && '],
           ';',
           '}',          
         ],
@@ -158,16 +152,10 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       builder.buildMethod(hashCode.identifier),
       // ignore: deprecated_member_use
       builder.resolveIdentifier(dartCore, 'Object'),
-      builder.fieldsOf(clazz),
+      builder.allFieldsOf(clazz),
     ).wait;
 
-    var superclass = await builder.superclassOf(clazz);
-    while(superclass != null) {
-      fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await builder.superclassOf(superclass);
-    }
-    
-    final fieldNames = fields.map((f) => f.identifier.name);
+    final fieldNames = fields.map((f) => f.identifier.name).toSet();
 
     return hashCodeMethod.augment(
       FunctionBodyCode.fromParts(

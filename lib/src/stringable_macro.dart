@@ -68,13 +68,8 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (toString == null) return;
     final toStringMethod = await builder.buildMethod(toString.identifier);
     final clazzName = clazz.identifier.name;
-    final fields = await builder.fieldsOf(clazz);
+    final fields = await builder.allFieldsOf(clazz);
     
-    var superclass = await builder.superclassOf(clazz);
-    while(superclass != null) {
-      fields.addAll(await builder.fieldsOf(superclass));
-      superclass = await builder.superclassOf(superclass);
-    }
     // TODO(felangel): figure out why superclass fields result in duplicates
     // instead of de-duplicating manually here.
     final fieldNames = fields.map((f) => f.identifier.name).toSet();

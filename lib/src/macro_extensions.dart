@@ -23,6 +23,10 @@ extension DefinitionBuilderX on DefinitionBuilder {
     return _superclassOf(clazz, typeDeclarationOf);
   }
 
+  Future<List<FieldDeclaration>> allFieldsOf(ClassDeclaration clazz) {
+    return _allFieldsOf(clazz, fieldsOf, superclassOf);
+  }
+
   Future<ConstructorParams> constructorParamsOf(
     ConstructorDeclaration constructor,
     ClassDeclaration clazz,
@@ -47,12 +51,32 @@ extension DeclarationBuilderX on DeclarationBuilder {
     return _superclassOf(clazz, typeDeclarationOf);
   }
 
+  Future<List<FieldDeclaration>> allFieldsOf(ClassDeclaration clazz) {
+    return _allFieldsOf(clazz, fieldsOf, superclassOf);
+  }
+
   Future<ConstructorParams> constructorParamsOf(
     ConstructorDeclaration constructor,
     ClassDeclaration clazz,
   ) {
     return _constructorParamsOf(constructor, clazz, resolveType);
   }
+}
+
+Future<List<FieldDeclaration>> _allFieldsOf(
+  ClassDeclaration clazz,
+  Future<List<FieldDeclaration>> fieldsOf(TypeDeclaration type),
+  Future<ClassDeclaration?> superclassOf(ClassDeclaration clazz),
+) async {
+  final allFields = <FieldDeclaration>[];
+  allFields.addAll(await fieldsOf(clazz));
+
+  var superclass = await superclassOf(clazz);
+  while (superclass != null && superclass.identifier != 'Object') {
+    allFields.addAll(await fieldsOf(superclass));
+    superclass = await superclassOf(superclass);
+  }
+  return allFields;
 }
 
 Future<TypeAnnotation?> _resolveType(
