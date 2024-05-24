@@ -1,3 +1,11 @@
+## 0.0.0-dev.10
+
+- refactor: simplify various macro implementations
+  - remove unnecessary de-duping
+  - improve internal performance
+  - extract shared logic
+- tests: additional unit tests for `@Data`
+
 ## 0.0.0-dev.9
 
 - fix: `@Data` inheritance compatibility
