@@ -16,7 +16,7 @@ import 'package:macros/macros.dart';
 /// 
 /// void main() {
 ///   // Generated `copyWith`
-///   print(Person(name: 'Dash').copyWith(name: () => 'Sparky').name); // Sparky
+///   print(Person(name: 'Dash').copyWith(name: 'Sparky').name); // Sparky
 /// }
 /// ```
 /// {@endtemplate}
@@ -44,7 +44,7 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    final methods = await builder.methodsOf(clazz);
+    final methods = await builder.fieldsOf(clazz);
     if (methods.any((c) => c.identifier.name == 'copyWith')) {
       throw ArgumentError('A copyWith method already exists.');
     }
@@ -56,22 +56,22 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     if (fields.isEmpty) {
       return builder.declareInType(
         DeclarationCode.fromString(
-          'external ${clazz.identifier.name} copyWith();',
+          'external ${clazz.identifier.name} Function() get copyWith;',
         ),
       );
     }
 
     final declaration = DeclarationCode.fromParts(
       [
-        'external ${clazz.identifier.name} copyWith({',
+        'external ${clazz.identifier.name} Function({',
         for (final field in fields)
           ...[
             field.type.cast<NamedTypeAnnotation>().identifier,
             if(field.type.cast<NamedTypeAnnotation>().isNullable) '?',
-            ' Function()? ', field.identifier.name,
+            ' ', field.identifier.name,
             ',',
           ]
-        ,'});',
+        ,'}) get copyWith;',
       ],
     );
     
@@ -113,7 +113,7 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
 
     if (params.isEmpty) {
       return copyWithMethod.augment(
-        FunctionBodyCode.fromParts(['=> ', className, '();']),
+        FunctionBodyCode.fromParts(['=> ', className, '.new;']),
         docComments: docComments,
       );
     }
@@ -121,14 +121,18 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     // Ensure all constructor params have a type.
     if (params.any((p) => p.type == null)) return null;
 
+    // ignore: deprecated_member_use
+    final obj = await builder.resolveIdentifier(dartCore, 'Object');
+    final object =  NamedTypeAnnotationCode(name: obj);
+
     final body = FunctionBodyCode.fromParts(
       [
         '=> ',
-        className,
-        '(',
+        '({',for (final param in params) ...[object, '? ', param.name, ' = const ', object, '(),'],'}) { ',
+        'return ', className,'(',
         for (final param in params)
-          ...[param.name, ': ', param.name, ' != null ? ',param.name, '.call()', ' : this.',param.name, ','],
-        ');'
+          ...[param.name, ': ', param.name, ' == const ', object, '() ? this.', param.name, ' : ', param.name, ' as ', param.type!.code, ','],');',
+        '};',
       ],
     );
 

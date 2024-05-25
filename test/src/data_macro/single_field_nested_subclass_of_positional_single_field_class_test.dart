@@ -52,7 +52,7 @@ void main() {
         subField: 'subField',
         baseField: 'baseField',
       );
-      final copy = instance.copyWith(baseField: () => 'other');
+      final copy = instance.copyWith(baseField: 'other');
       expect(copy.nestedSubField, equals(instance.nestedSubField));
       expect(copy.subField, equals(instance.subField));
       expect(copy.baseField, equals('other'));

@@ -26,7 +26,7 @@ void main() {
 
     test('copyWith creates a copy and overrides field', () {
       final instance = EmptySubClass(field: 'field');
-      final copy = instance.copyWith(field: () => 'other');
+      final copy = instance.copyWith(field: 'other');
       expect(copy.field, equals('other'));
     });
 

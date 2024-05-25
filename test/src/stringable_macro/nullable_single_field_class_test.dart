@@ -3,16 +3,25 @@ import 'package:test/test.dart';
 
 @Stringable()
 class NullableSingleFieldClass {
-  NullableSingleFieldClass({this.field});
-  final String? field;
+  NullableSingleFieldClass({this.fieldA, this.fieldB});
+  final String? fieldA;
+  final String? fieldB;
 }
 
 void main() {
   group(NullableSingleFieldClass, () {
     test('toString is correct', () {
       expect(
-        NullableSingleFieldClass(field: 'field').toString(),
-        equals('NullableSingleFieldClass(field: field)'),
+        NullableSingleFieldClass(fieldA: 'fieldA', fieldB: 'fieldB').toString(),
+        equals('NullableSingleFieldClass(fieldA: fieldA, fieldB: fieldB)'),
+      );
+      expect(
+        NullableSingleFieldClass(fieldA: 'fieldA').toString(),
+        equals('NullableSingleFieldClass(fieldA: fieldA)'),
+      );
+      expect(
+        NullableSingleFieldClass(fieldB: 'fieldB').toString(),
+        equals('NullableSingleFieldClass(fieldB: fieldB)'),
       );
       expect(
         NullableSingleFieldClass().toString(),

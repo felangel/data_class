@@ -20,7 +20,7 @@ import 'package:macros/macros.dart';
 ///   print(dash); // Person(name: Dash)
 /// 
 ///   // Generated `copyWith`
-///   print(dash.copyWith(name: () => 'Sparky')); // Person(name: Sparky)
+///   print(dash.copyWith(name: 'Sparky')); // Person(name: Sparky)
 /// 
 ///   // Generated `hashCode` and `operator==` for value based equality.
 ///   print(dash == Person(name: 'Dash')); // true

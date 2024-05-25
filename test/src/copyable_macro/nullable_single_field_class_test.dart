@@ -17,13 +17,13 @@ void main() {
 
     test('copyWith creates a copy and overrides field', () {
       final instance = NullableSingleFieldClass(field: 'field');
-      final copy = instance.copyWith(field: () => 'other');
+      final copy = instance.copyWith(field: 'other');
       expect(copy.field, equals('other'));
     });
 
     test('copyWith creates a copy and overrides field with null', () {
       final instance = NullableSingleFieldClass(field: 'field');
-      final copy = instance.copyWith(field: () => null);
+      final copy = instance.copyWith(field: null);
       expect(copy.field, isNull);
     });
   });
