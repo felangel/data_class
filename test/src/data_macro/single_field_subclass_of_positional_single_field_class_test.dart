@@ -39,7 +39,7 @@ void main() {
         field: 'field',
         baseField: 'baseField',
       );
-      final copy = instance.copyWith(baseField: () => 'other');
+      final copy = instance.copyWith(baseField: 'other');
       expect(copy.field, equals(instance.field));
       expect(copy.baseField, equals('other'));
     });

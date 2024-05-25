@@ -26,7 +26,7 @@ void main() {
 
     test('copyWith creates a copy and overrides field', () {
       final instance = EmptySubClass(stringField: 'stringField', intField: 42);
-      final copy = instance.copyWith(intField: () => 0);
+      final copy = instance.copyWith(intField: 0);
       expect(copy.stringField, equals(instance.stringField));
       expect(copy.intField, equals(0));
     });

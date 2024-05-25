@@ -10,7 +10,7 @@ void main() {
   const dash = Person(name: 'Dash');
 
   // 🖨️ Create copies of your object.
-  final sparky = dash.copyWith(name: () => 'Sparky');
+  final sparky = dash.copyWith(name: 'Sparky');
 
   // ✨ Human-readable string representation.
   print(dash); // Person(name: Dash)
