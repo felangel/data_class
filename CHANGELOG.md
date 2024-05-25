@@ -1,3 +1,8 @@
+## 0.0.0-dev.11
+
+- feat: simpler `copyWith` syntax
+- fix: `toString()` omits trailing comma when terminating with a `null` field.
+
 ## 0.0.0-dev.10
 
 - refactor: simplify various macro implementations
