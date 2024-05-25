@@ -7,3 +7,4 @@ export 'src/equatable_macro.dart' show Equatable;
 export 'src/stringable_macro.dart' show Stringable;
 
 final deepEquals = const DeepCollectionEquality().equals;
+const undefined = Object();

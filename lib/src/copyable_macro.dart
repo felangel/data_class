@@ -121,17 +121,22 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     // Ensure all constructor params have a type.
     if (params.any((p) => p.type == null)) return null;
 
-    // ignore: deprecated_member_use
-    final obj = await builder.resolveIdentifier(dartCore, 'Object');
-    final object =  NamedTypeAnnotationCode(name: obj);
+    final (objectIdentifier, undefinedIdentifier) = await (
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dartCore, 'Object'),
+      // ignore: deprecated_member_use
+      builder.resolveIdentifier(dataClassMacro, 'undefined'),
+    ).wait;
+    final object = NamedTypeAnnotationCode(name: objectIdentifier);
+    final undefined = NamedTypeAnnotationCode(name: undefinedIdentifier);
 
     final body = FunctionBodyCode.fromParts(
       [
         '=> ',
-        '({',for (final param in params) ...[object, '? ', param.name, ' = const ', object, '(),'],'}) { ',
+        '({',for (final param in params) ...[object, '? ', param.name, ' = ', undefined, ','],'}) { ',
         'return ', className,'(',
         for (final param in params)
-          ...[param.name, ': ', param.name, ' == const ', object, '() ? this.', param.name, ' : ', param.name, ' as ', param.type!.code, ','],');',
+          ...[param.name, ': ', param.name, ' == ', undefined, ' ? this.', param.name, ' : ', param.name, ' as ', param.type!.code, ','],');',
         '};',
       ],
     );
