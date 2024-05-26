@@ -8,6 +8,11 @@ typedef ConstructorParams = ({
 });
 
 extension DefinitionBuilderX on DefinitionBuilder {
+  Future<NamedTypeAnnotationCode> codeFrom(Uri library, String name) async {
+    // ignore: deprecated_member_use
+    return _codeFrom(library, name, resolveIdentifier);
+  }
+
   Future<TypeAnnotation?> resolveType(
     FormalParameterDeclaration declaration,
     ClassDeclaration clazz,
@@ -36,6 +41,11 @@ extension DefinitionBuilderX on DefinitionBuilder {
 }
 
 extension DeclarationBuilderX on DeclarationBuilder {
+  Future<NamedTypeAnnotationCode> codeFrom(Uri library, String name) async {
+    // ignore: deprecated_member_use
+    return _codeFrom(library, name, resolveIdentifier);
+  }
+
   Future<TypeAnnotation?> resolveType(
     FormalParameterDeclaration declaration,
     ClassDeclaration clazz,
@@ -61,6 +71,15 @@ extension DeclarationBuilderX on DeclarationBuilder {
   ) {
     return _constructorParamsOf(constructor, clazz, resolveType);
   }
+}
+
+Future<NamedTypeAnnotationCode> _codeFrom(
+  Uri library,
+  String name,
+  Future<Identifier> resolveIdentifier(Uri library, String name),
+) async {
+  final identifier = await resolveIdentifier(library, name);
+  return NamedTypeAnnotationCode(name: identifier);
 }
 
 Future<List<FieldDeclaration>> _allFieldsOf(

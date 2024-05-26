@@ -50,20 +50,12 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     MemberDeclarationBuilder builder,
   ) async {
     final (object, boolean) = await (
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dartCore, 'Object'),
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dartCore, 'bool'),      
+      builder.codeFrom(dartCore, 'Object'),
+      builder.codeFrom(dartCore, 'bool'),      
     ).wait;
     return builder.declareInType(
       DeclarationCode.fromParts(
-        [
-          'external ',
-          NamedTypeAnnotationCode(name: boolean),
-          ' operator==(',
-          NamedTypeAnnotationCode(name: object),
-          ' other);',
-        ],
+        ['external ', boolean, ' operator==(', object, ' other);'],
       ),
     );
   }
@@ -72,16 +64,9 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    // ignore: deprecated_member_use
-    final integer = await builder.resolveIdentifier(dartCore, 'int');
+    final integer = await builder.codeFrom(dartCore, 'int');
     return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'external ',
-          NamedTypeAnnotationCode(name: integer),
-          ' get hashCode;',
-        ],
-      ),
+      DeclarationCode.fromParts(['external ', integer, ' get hashCode;']),
     );
   }
 
@@ -95,24 +80,22 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (equality == null) return;
     
-    final (equalsMethod, deepEquals, fields, identical) = await (
+    final (equalsMethod, deepEquals, identical, fields) = await (
       builder.buildMethod(equality.identifier),
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dataClassMacro, 'deepEquals'),
+      builder.codeFrom(dataClassMacro, 'deepEquals'),
+      builder.codeFrom(dartCore, 'identical'),
       builder.allFieldsOf(clazz),
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dartCore, 'identical'),
     ).wait;
-    
+
     if (fields.isEmpty) {
       return equalsMethod.augment(
         FunctionBodyCode.fromParts(
           [
             '{',
-            'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',
+            'if (', identical,' (this, other)',')', 'return true;',
             'return other is ${clazz.identifier.name} && ',
-            'other.runtimeType == runtimeType;',            
-            '}',          
+            'other.runtimeType == runtimeType;',
+            '}',
           ],
         ),      
       );
@@ -124,13 +107,13 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       FunctionBodyCode.fromParts(
         [
           '{',
-          'if (', NamedTypeAnnotationCode(name: identical),' (this, other)',')', 'return true;',
+          'if (', identical,' (this, other)',')', 'return true;',
           'return other is ${clazz.identifier.name} && ',
-          'other.runtimeType == runtimeType && ',          
+          'other.runtimeType == runtimeType && ',
           for (final field in fieldNames)
-            ...[NamedTypeAnnotationCode(name: deepEquals), '(${field}, other.$field)', if (field != lastField) ' && '],
+            ...[deepEquals, '(${field}, other.$field)', if (field != lastField) ' && '],
           ';',
-          '}',          
+          '}',
         ],
       ),      
     );
@@ -148,8 +131,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
 
     final (hashCodeMethod, object, fields) = await (
       builder.buildMethod(hashCode.identifier),
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dartCore, 'Object'),
+      builder.codeFrom(dartCore, 'Object'),
       builder.allFieldsOf(clazz),
     ).wait;
 
@@ -159,7 +141,7 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       FunctionBodyCode.fromParts(
         [
           '=> ',
-          NamedTypeAnnotationCode(name: object),
+          object,
           '.hashAll([',
           fieldNames.join(', '),
           ']);',

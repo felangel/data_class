@@ -121,14 +121,10 @@ macro class Copyable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     // Ensure all constructor params have a type.
     if (params.any((p) => p.type == null)) return null;
 
-    final (objectIdentifier, undefinedIdentifier) = await (
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dartCore, 'Object'),
-      // ignore: deprecated_member_use
-      builder.resolveIdentifier(dataClassMacro, 'undefined'),
+    final (object, undefined) = await (
+      builder.codeFrom(dartCore, 'Object'),
+      builder.codeFrom(dataClassMacro, 'undefined'),
     ).wait;
-    final object = NamedTypeAnnotationCode(name: objectIdentifier);
-    final undefined = NamedTypeAnnotationCode(name: undefinedIdentifier);
 
     final body = FunctionBodyCode.fromParts(
       [

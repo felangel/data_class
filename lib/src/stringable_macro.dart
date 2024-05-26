@@ -44,16 +44,9 @@ macro class Stringable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     ClassDeclaration clazz,
     MemberDeclarationBuilder builder,
   ) async {
-    // ignore: deprecated_member_use
-    final string = await builder.resolveIdentifier(dartCore, 'String');
+    final string = await builder.codeFrom(dartCore, 'String');
     return builder.declareInType(
-      DeclarationCode.fromParts(
-        [
-          'external ',
-          NamedTypeAnnotationCode(name: string),
-          ' toString();',
-        ],
-      ),
+      DeclarationCode.fromParts(['external ', string, ' toString();']),
     );
   }
 
