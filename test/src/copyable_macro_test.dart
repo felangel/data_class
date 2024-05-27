@@ -25,6 +25,7 @@ import 'copyable_macro/single_field_nested_subclass_of_positional_single_field_c
     as single_field_nested_subclass_of_positional_single_field_class_test;
 import 'copyable_macro/single_field_subclass_of_positional_single_field_class_test.dart'
     as single_field_subclass_of_positional_single_field_class_test;
+import 'copyable_macro/static_field_class_test.dart' as static_field_class_test;
 
 void main() {
   empty_class_test.main();
@@ -42,4 +43,5 @@ void main() {
   single_field_class_test.main();
   single_field_nested_subclass_of_positional_single_field_class_test.main();
   single_field_subclass_of_positional_single_field_class_test.main();
+  static_field_class_test.main();
 }

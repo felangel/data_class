@@ -70,6 +70,9 @@ macro class Constructable implements ClassDeclarationsMacro {
 
     final fields = await builder.fieldsOf(clazz);
     
+    // Exclude static fields.
+    fields.removeWhere((f) => f.hasStatic);
+    
     // Ensure all class fields have a type.
     if (fields.any((f) => f.type.checkNamed(builder) == null)) return null;
 

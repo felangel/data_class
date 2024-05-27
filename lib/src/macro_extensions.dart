@@ -91,11 +91,11 @@ Future<List<FieldDeclaration>> _allFieldsOf(
   allFields.addAll(await fieldsOf(clazz));
 
   var superclass = await superclassOf(clazz);
-  while (superclass != null && superclass.identifier != 'Object') {
+  while (superclass != null && superclass.identifier.name != 'Object') {
     allFields.addAll(await fieldsOf(superclass));
     superclass = await superclassOf(superclass);
   }
-  return allFields;
+  return allFields..removeWhere((f) => f.hasStatic);
 }
 
 Future<TypeAnnotation?> _resolveType(
