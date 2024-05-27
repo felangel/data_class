@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/src/_data_class_macro.dart';
 import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 

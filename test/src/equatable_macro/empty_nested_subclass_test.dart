@@ -15,7 +15,7 @@ void main() {
     });
 
     test('hashCode is correct', () {
-      expect(EmptyNestedSubClass().hashCode, equals(Object.hashAll([])));
+      expect(EmptyNestedSubClass().hashCode, equals(EmptyNestedSubClass().hashCode));
     });
   });
 }

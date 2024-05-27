@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:data_class_macro/src/_data_class_macro.dart';
 import 'package:data_class_macro/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
@@ -129,9 +130,9 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
     );
     if (hashCode == null) return;
 
-    final (hashCodeMethod, object, fields) = await (
+    final (hashCodeMethod, hashAll, fields) = await (
       builder.buildMethod(hashCode.identifier),
-      builder.codeFrom(dartCore, 'Object'),
+      builder.codeFrom(dataClassMacro, 'hashAll'),
       builder.allFieldsOf(clazz),
     ).wait;
 
@@ -141,8 +142,8 @@ macro class Equatable implements ClassDeclarationsMacro, ClassDefinitionMacro {
       FunctionBodyCode.fromParts(
         [
           '=> ',
-          object,
-          '.hashAll([',
+          hashAll,
+          '([',
           fieldNames.join(', '),
           ']);',
         ],

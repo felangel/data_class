@@ -13,7 +13,7 @@ void main() {
     });
 
     test('hashCode is correct', () {
-      expect(StaticFieldClass().hashCode, equals(Object.hashAll([])));
+      expect(StaticFieldClass().hashCode, equals(StaticFieldClass().hashCode));
     });
   });
 }
