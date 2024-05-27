@@ -1,3 +1,8 @@
+## 0.0.0-dev.12
+
+- feat: improve hash to use jenkins hash
+- fix: support classes with static fields
+
 ## 0.0.0-dev.11
 
 - feat: simpler `copyWith` syntax
