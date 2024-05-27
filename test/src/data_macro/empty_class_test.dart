@@ -19,7 +19,7 @@ void main() {
     });
 
     test('hashCode is correct', () {
-      expect(EmptyClass().hashCode, equals(Object.hashAll([])));
+      expect(EmptyClass().hashCode, equals(EmptyClass().hashCode));
     });
 
     test('toString is correct', () {

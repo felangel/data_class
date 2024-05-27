@@ -248,9 +248,3 @@ extension TypeAnnotationX on TypeAnnotation {
     return null;
   }
 }
-
-// Used libraries
-final dartCore = Uri.parse('dart:core');
-final dataClassMacro = Uri.parse(
-  'package:data_class_macro/data_class_macro.dart',
-);

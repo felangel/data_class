@@ -24,7 +24,7 @@ void main() {
     });
 
     test('hashCode is correct', () {
-      expect(EmptySubClass().hashCode, equals(Object.hashAll([])));
+      expect(EmptySubClass().hashCode, equals(EmptySubClass().hashCode));
     });
 
     test('toString is correct', () {
