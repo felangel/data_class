@@ -1,3 +1,11 @@
+## 0.0.2
+
+- chore: migrate from `package:data_class_macro` to `package:data_class`
+
+## 0.0.1
+
+- chore: initial version of `package:data_class`
+
 ## 0.0.0-dev.12
 
 - feat: improve hash to use jenkins hash

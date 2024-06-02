@@ -1,5 +1,5 @@
 /// Experimental support for data classes in Dart using package:macros.
-library data_class_macro;
+library data_class;
 
 export 'src/constructable_macro.dart' show Constructable;
 export 'src/copyable_macro.dart' show Copyable;

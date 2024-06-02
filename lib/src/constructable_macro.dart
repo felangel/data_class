@@ -1,4 +1,4 @@
-import 'package:data_class_macro/src/macro_extensions.dart';
+import 'package:data_class/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
 /// {@template constructable}

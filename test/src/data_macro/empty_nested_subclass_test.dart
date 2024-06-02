@@ -1,4 +1,4 @@
-import 'package:data_class_macro/data_class_macro.dart';
+import 'package:data_class/data_class.dart';
 import 'package:test/test.dart';
 
 abstract class BaseClass {
@@ -32,7 +32,8 @@ void main() {
     });
 
     test('hashCode is correct', () {
-      expect(EmptyNestedSubClass().hashCode, equals(EmptyNestedSubClass().hashCode));
+      expect(EmptyNestedSubClass().hashCode,
+          equals(EmptyNestedSubClass().hashCode));
     });
 
     test('toString is correct', () {

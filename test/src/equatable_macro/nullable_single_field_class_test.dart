@@ -1,4 +1,4 @@
-import 'package:data_class_macro/data_class_macro.dart';
+import 'package:data_class/data_class.dart';
 import 'package:test/test.dart';
 
 @Equatable()
