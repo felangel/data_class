@@ -1,4 +1,4 @@
-import 'package:data_class_macro/data_class_macro.dart';
+import 'package:data_class/data_class.dart';
 import 'package:test/test.dart';
 
 abstract class BaseClass {
@@ -8,7 +8,8 @@ abstract class BaseClass {
 
 @Copyable()
 class SingleFieldSubClass extends BaseClass {
-  const SingleFieldSubClass({required String baseField, required this.field}) : super(baseField);
+  const SingleFieldSubClass({required String baseField, required this.field})
+      : super(baseField);
   final String field;
 }
 

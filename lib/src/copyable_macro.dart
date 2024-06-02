@@ -1,8 +1,8 @@
 import 'dart:core';
 
 import 'package:collection/collection.dart';
-import 'package:data_class_macro/src/_data_class_macro.dart';
-import 'package:data_class_macro/src/macro_extensions.dart';
+import 'package:data_class/src/_data_class.dart';
+import 'package:data_class/src/macro_extensions.dart';
 import 'package:macros/macros.dart';
 
 /// {@template copyable}

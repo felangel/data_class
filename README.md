@@ -1,7 +1,7 @@
 # data_class
 
 [![build](https://github.com/felangel/data_class/actions/workflows/main.yaml/badge.svg)](https://github.com/felangel/data_class/actions/workflows/main.yaml)
-[![pub package](https://img.shields.io/pub/v/data_class_macro.svg)](https://pub.dev/packages/data_class_macro)
+[![pub package](https://img.shields.io/pub/v/data_class.svg)](https://pub.dev/packages/data_class)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
 **🚧 Experimental** support for data classes in Dart using [macros](https://dart.dev/language/macros).
@@ -19,7 +19,7 @@
 ## 🧑‍💻 Example
 
 ```dart
-import 'package:data_class_macro/data_class_macro.dart';
+import 'package:data_class/data_class.dart';
 
 @Data()
 class Person {
@@ -48,11 +48,11 @@ void main() {
 1. Switch to the Flutter `master` channel
    `flutter channel master`
 
-1. Add `package:data_class_macro` to your `pubspec.yaml`
+1. Add `package:data_class` to your `pubspec.yaml`
 
    ```yaml
    dependencies:
-     data_class_macro: ^0.0.0-dev.1
+     data_class: any
    ```
 
 1. Enable experimental macros in `analysis_options.yaml`

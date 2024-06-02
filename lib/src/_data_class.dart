@@ -2,9 +2,7 @@ import 'package:collection/collection.dart';
 
 // Libraries used in augmented code.
 final dartCore = Uri.parse('dart:core');
-final dataClassMacro = Uri.parse(
-  'package:data_class_macro/src/_data_class_macro.dart',
-);
+final dataClassMacro = Uri.parse('package:data_class/src/_data_class.dart');
 
 // Methods used in augmented code.
 const undefined = Object();
