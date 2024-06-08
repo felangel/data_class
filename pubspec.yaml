@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   collection: ^1.0.0
-  macros: ^0.1.0-main.5
+  macros: ^0.1.2-main.0
 
 dev_dependencies:
   test: ^1.0.0
