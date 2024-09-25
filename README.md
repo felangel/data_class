@@ -4,7 +4,7 @@
 [![pub package](https://img.shields.io/pub/v/data_class.svg)](https://pub.dev/packages/data_class)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 
-**🚧 Experimental** support for data classes in Dart using [macros](https://dart.dev/language/macros).
+Support for data classes in Dart using [macros](https://dart.dev/language/macros).
 
 ## ✨ Features
 
@@ -45,9 +45,6 @@ void main() {
 
 ## 🚀 Quick Start
 
-1. Switch to the Flutter `master` channel
-   `flutter channel master`
-
 1. Add `package:data_class` to your `pubspec.yaml`
 
    ```yaml
@@ -71,4 +68,4 @@ void main() {
    dart --enable-experiment=macros run main.dart
    ```
 
-_\*Requires Dart SDK >= 3.5.0-152.0.dev_
+_\*Requires Dart SDK >= 3.5.0_

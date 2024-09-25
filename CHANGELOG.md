@@ -1,3 +1,9 @@
+## 0.1.0
+
+- docs: minor `README.md` updates
+- chore(deps): upgrade Dart SDK constraint to `^3.5.0`
+- chore: add `funding` to `pubspec.yaml`
+
 ## 0.0.2
 
 - chore: migrate from `package:data_class_macro` to `package:data_class`
