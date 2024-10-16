@@ -18,6 +18,7 @@ import 'equatable_macro/empty_subclass_of_positional_multi_field_class_test.dart
 import 'equatable_macro/empty_subclass_of_positional_single_field_class_test.dart'
     as empty_subclass_of_positional_single_field_class_test;
 import 'equatable_macro/empty_subclass_test.dart' as empty_subclass_test;
+import 'equatable_macro/generic_single_field_class_test.dart' as generic_single_field_class_test;
 import 'equatable_macro/nullable_single_field_class_test.dart'
     as nullable_single_field_class_test;
 import 'equatable_macro/single_field_class_test.dart'
@@ -41,6 +42,7 @@ void main() {
   empty_subclass_of_positional_multi_field_class_test.main();
   empty_subclass_of_positional_single_field_class_test.main();
   empty_subclass_test.main();
+  generic_single_field_class_test.main();
   nullable_single_field_class_test.main();
   single_field_class_test.main();
   single_field_nested_subclass_of_positional_single_field_class_test.main();
