@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     name: ⚙️ Build
 
+    strategy:
+      matrix:
+        sdk: [stable, dev]
+
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4
@@ -21,7 +25,7 @@ jobs:
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
         with:
-          sdk: dev
+          sdk: ${{ matrix.sdk }}
 
       - name: 📦 Install Dependencies
         run: dart pub get
