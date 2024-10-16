@@ -1,6 +1,6 @@
 name: data_class
 description: Experimental support for data classes in Dart using pkg:macros
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/felangel/data_class
 topics: [macros, data-class]
 funding: [https://github.com/sponsors/felangel]

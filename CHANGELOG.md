@@ -1,3 +1,7 @@
+## 0.1.1
+
+- feat: support for generics
+
 ## 0.1.0
 
 - docs: minor `README.md` updates
