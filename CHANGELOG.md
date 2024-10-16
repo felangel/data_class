@@ -1,3 +1,7 @@
+## 0.1.2
+
+- chore(deps): migrate to `package:equatable`
+
 ## 0.1.1
 
 - feat: support for generics
